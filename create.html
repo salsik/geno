@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Genogram</title>
+<meta name="description" content="A genogram is a family tree diagram for visualizing hereditary patterns." />
+  <!-- Copyright 1998-2016 by Northwoods Software Corporation. -->
+  <meta charset="UTF-8">
+   <link rel="stylesheet" type="text/css" href="css/style.css">
+  <script src="js/go.js"></script>
+  <script src="js/genogram.js"></script>
+  <script src="js/jquery.min.js"></script>
+
+
+</head>
+<body>
+
+<div id="enterForm">
+<form name="enter">
+  name :
+  <input type="text" name="name">
+  <br>
+  main charecter : <input type="radio" name="mainc" value="yes"> Yes <input type="radio" name="mainc" value="no" checked>No.
+  <br>
+  Sex : <input type="radio" name="sex" value="M" checked>Male <input type="radio" name="sex" value="F">Female
+  <br>
+  Current State : <input type="radio" name="cstate" value="alive" checked>Alive  <input type="radio" name="cstate" value="dead">Dead
+  <br>
+  Partners : <input type="text" name="partners"> Please Enter IDs of Partners.<br>ex : 1,2,22
+  <br>
+  partners status: <input type="text" name="status"> ex: M,R
+  <br>
+  M : Married.<br>R : Relathionship.<br>C : Commited relationship.
+  <br>
+  current partners status: <input type="text" name="cstatus"> ex: D,S.
+  <br>
+  D : Divorced<br>S : Seperated<br>T : Still Together
+  <br>
+  father : <input type="text" name="father"> ex : 1 (leave it empty in case you dont want to add it to the diagram).
+  <br>
+  mother : <input type="text" name="mother"> (leave it empty in case you dont want to add it to the diagram).
+  <br>
+  age : <input type="text" name="age">
+  <br>
+  birth date : <input type="text" name="bdate">
+  <br>
+  death date : <input type="text" name="ddate"> (leave it empty in case this information is helpless).
+  <br>
+  <input type="button" onclick="add_node()" value="add node">
+  <input type="button" onclick="init()" value="generate genogram">
+  <input type="button" onclick="generateImages()" value="print genogram">
+  <input type="button" onclick="save()" value="save">
+</form>
+</div>
+<table id="myTable">
+  <th>ID</th>
+  <th>Name</th>
+  <th>Father</th>
+  <th>Mother</th>
+</table>
+<div id="sample">
+  <div id="myDiagramDiv" style="border: solid 1px black; width:100%; height:600px"></div>
+</div>
+<div id="myImages">
+</div>
+
+
+
+</body>
+</html>

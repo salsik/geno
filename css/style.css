@@ -1,0 +1,108 @@
+/* @media print specifies CSS rules that only apply when printing */
+@media print {
+  /* CSS reset to clear styles for printing */
+  html, body, div {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+  }
+
+  /* Hide everything on the page */
+  body * {
+    display: none;
+  }
+
+  #content, #myImages, #myImages * {
+    /* Only display the images we want printed */
+    /* all of the image's parent divs
+       leading up to the body must be un-hidden (displayed) too
+    */
+    display: block;
+    /* CSS reset to clear the specific visible divs for printing */
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+  }
+
+  /* We have line breaks in the DIV
+     to separate the images in the browser,
+     but do not want those line breaks when printing
+  */
+  #myImages br {
+    display: none;
+  }
+
+}
+                                                   /*input div CSS*/
+#enterForm textarea{
+    font-family: "Comic Sans MS";
+    margin: 4px 0px;
+}
+
+#enterForm button {
+    background-color: #4CAF50;
+    color: white;
+    margin: 4px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+#enterForm #search-button{
+  margin: 4px 0px;
+}
+#enterForm button:hover {
+    background-color: #45a049;
+}
+
+#myTable button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 7px 10px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#myTable input[type=button]:hover {
+    background-color: #45a049;
+}
+
+#enterForm {
+    border-radius: 5px;
+    background-color: #f2f2f2;
+    padding: 20px;
+    font-size: 100%;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    padding-left: 20px;
+    padding-top: 20px;
+}
+table { border-collapse: collapse; border-spacing: 0; margin: 4px;}
+
+th{
+  background: #acc8dd;
+  padding-right: 40px;
+  background-repeat: no-repeat;
+  background-position: 100% 100%;
+}
+
+tr {
+  color: #555;
+}
+
+div {
+  margin: 0;
+}
+tbody tr td.lalign {
+  text-align: left;
+}
+
+#my_xml {
+    display: none;
+}
