@@ -99,91 +99,290 @@
       { key: 40, n: "Maternal Great Great", s: "M" ,bdate: 1960,age:50, noc:2}
     ]*/;
     var num = 0;
-    function add_node(){
-      var ind = nodes.length;
+    function clear_fields(){
+      document.getElementById("name_id").value="";
+      document.getElementById("male_id").checked = true;
+      document.getElementById("alive_id").checked = true;
+      document.getElementById("mainc_no").checked = true;
+      document.getElementById("mother_id").value="";
+      document.getElementById("father_id").value = "";
+      document.getElementById("partners_id").value = "";
+      document.getElementById("status_id").value = "";
+      document.getElementById("cstatus_id").value = "";
+      document.getElementById("age_id").value = "";
+      document.getElementById("bdate_id").value = "";
+      document.getElementById("ddate_id").value = "";
+    }
+    edit_id=0;
+    function preview_node(id){
+      node = nodes[id];
+      edit_id = id;
+      document.getElementById("name_id").value=node["n"];
+      if(node["s"]==="M" || node["s"]==="SM"){
+        document.getElementById("male_id").checked = true;
+      }
+      if(node["s"]==="F" || node["s"]==="SF"){
+        document.getElementById("female_id").checked = true;
+      }
+      if(node["a"] !== undefined && node["a"] === "S"){
+        document.getElementById("dead_id").checked = true;
+      }
+      else{
+        document.getElementById("alive_id").checked = true;
+      }
+      if(node["s"] === "SM" || node["s"] === "SF"){
+        main_c_exist = false;
+        document.getElementById("mainc_yes").checked = true;
+      }
+      else{
+        document.getElementById("mainc_no").checked = true;
+      }
+      if(node["m"] !==undefined){
+        document.getElementById("mother_id").value=node["m"];
+      }
+      if(node["f"] !==undefined){
+        document.getElementById("father_id").value=node["d"];
+      }
+      if(node["ux"] !== undefined){
+        i=0;
+        for(i=0;i<node["ux"].length-1;i++){
+          document.getElementById("partners_id").value += node["ux"][i] + ",";
+          document.getElementById("status_id").value += node["rs"][i] + ",";
+          document.getElementById("cstatus_id").value += node["st"][i] + ",";
+        }
+        document.getElementById("partners_id").value += node["ux"][i];
+        document.getElementById("status_id").value += node["rs"][i];
+        document.getElementById("cstatus_id").value += node["st"][i];
+      }
+      if(node["vir"] !== undefined){
+        i=0;
+        for(i=0;i<node["vir"].length-1;i++){
+          document.getElementById("partners_id").value += node["vir"][i] + ",";
+          document.getElementById("status_id").value += node["rs"][i] + ",";
+          document.getElementById("cstatus_id").value += node["st"][i] + ",";
+        }
+        document.getElementById("partners_id").value += node["vir"][i];
+        document.getElementById("status_id").value += node["rs"][i];
+        document.getElementById("cstatus_id").value += node["st"][i];
+      }
+      document.getElementById("age_id").value = node["age"];
+      document.getElementById("bdate_id").value = node["bdate"];
+      if(node["ddate"] !== undefined){
+        document.getElementById("ddate_id").value = node["ddate"];
+      }
+      document.getElementById("add_edit_node_button").innerHTML = "Edit node";
+      document.getElementById("add_edit_node_button").setAttribute('onclick', "edit_node()");
+      $('html, body').animate({ scrollTop: 0 }, 'fast');
+    }
+    function edit_node(){
+      console.debug("Edit_node Function");
       var node = [];
-      node["key"] = ind;
+      node["key"] = edit_id;
       node["noc"] ="1";
-      node["n"] = document.enter.name.value;
-      var temp="0";
-      for(var i=0;i<document.enter.length;i++){
-        if(document.enter[i].checked){
-          if(document.enter[i].value === "dead"){
-            node["a"] = "S";
-            temp="1";
-          }
-          if(document.enter[i].name==="sex"){
-            node["s"] = document.enter[i].value;
-          }
+      node["n"] = document.getElementById("name_id").value;
+      if(document.getElementById("male_id").checked){
+        node["s"] = "M";
+      }
+      if(document.getElementById("female_id").checked){
+        node["s"] = "F";
+      }
+      if(document.getElementById("mainc_yes").checked){if(main_c_exist){
+          alert("There is another main charecter in this genogram");
+          return;
         }
+        node["s"] = "S"+node["s"];
       }
-      for(var i=0;i<document.enter.length;i++){
-        if(document.enter[i].checked){
-          if(document.enter[i].value === "yes"){
-            if(node["s"] === "M")node["s"] = "SM";
-            if(node["s"] === "F")node["s"] = "SF";
-          }
-        }
+
+      if(document.getElementById("dead_id").checked){
+        node["a"] = "S";
       }
-      console.debug(temp);
-      if(document.enter.mother.value.length !== 0){
-        node["m"] = document.enter.mother.value;
+      if(document.getElementById("mother_id").value.length !== 0){
+        node["m"] = document.getElementById("mother_id").value;
       }
-      if(document.enter.father.value.length !== 0){
-        node["f"] = document.enter.father.value;
+      document.getElementById("mother_id").value="";
+      if(document.getElementById("father_id").value.length !== 0){
+        node["f"] = document.getElementById("father_id").value;
       }
-      if(document.enter.partners.value.length !== 0){
+      document.getElementById("father_id").value = "";
+      if(document.getElementById("partners_id").value.length !== 0){
         if(node["s"] === "M" || node["s"] === "SM"){
-          res = document.enter.partners.value.split(",");
+          res = document.getElementById("partners_id").value.split(",");
           node["ux"] = res;
         }
         if(node["s"] === "F" || node["s"] === "SF"){
-          node["vir"] = document.enter.partners.value.split(",");;
+          node["vir"] = document.getElementById("partners_id").value.split(",");;
         }
-        node["rs"] = document.enter.status.value.split(",");
-        node["st"] = document.enter.cstatus.value.split(",");
+        node["rs"] = document.getElementById("status_id").value.split(",");
+        node["st"] = document.getElementById("cstatus_id").value.split(",");
       }
-      if(document.enter.age.value.length !== 0){
-        node["age"] = document.enter.age.value;
+      if(document.getElementById("age_id").value.length !== 0){
+        node["age"] = document.getElementById("age_id").value;
       }
-      if(document.enter.bdate.value.length !== 0){
-        node["bdate"] = document.enter.bdate.value;
+      else{
+        alert("you must insert age!");
+        return;
       }
-      if(document.enter.ddate.value.length !== 0){
-        node["bdate"] = node["bdate"].concat("-");
-        node["bdate"] = node["bdate"].concat(document.enter.bdate.value);
+      if(document.getElementById("bdate_id").value.length !== 0){
+        node["bdate"] = document.getElementById("bdate_id").value;
       }
-      var table = document.getElementById("myTable");
-      num++;
-      console.debug(ind);
-      var row = table.insertRow(num);
-      var cell = row.insertCell(0);
-      cell.innerHTML = node["key"];
-      cell = row.insertCell(1);
-      cell.innerHTML = document.enter.name.value;
-      cell = row.insertCell(2);
-      cell.innerHTML = node["f"];
-      cell = row.insertCell(3);
-      cell.innerHTML = node["m"];
-      cell = row.insertCell(4);
-      cell.innerHTML = "<input type='button' onclick='delete_node("+node["key"]+")' value='Delete node'/>";
+      else{
+        alert("you must insert birthday date!");
+        return;
+      }
+      if(document.getElementById("ddate_id").value.length !== 0){
+        node["bdate"] = node["bdate"]+"-"+document.getElementById("ddate_id").value;
+      }
+      nodes[edit_id] = node;
+      document.getElementById("add_edit_node_button").innerHTML = "Add node";
+      document.getElementById("add_edit_node_button").onclick = "add_node()";
+      $('html, body').animate({ scrollTop: 0 }, 'fast');
+      clear_fields();
+      update_table();
+    }
+    main_c_exist = false;
+    function add_node(){
+      var node = [];
+      node["key"] = num;
+      node["noc"] ="1";
+      node["n"] = document.getElementById("name_id").value;
+      if(document.getElementById("male_id").checked){
+        node["s"] = "M";
+      }
+      if(document.getElementById("female_id").checked){
+        node["s"] = "F";
+      }
+      if(document.getElementById("mainc_yes").checked){
+        if(main_c_exist){
+          alert("There is another main charecter in this genogram");
+          return;
+        }
+        main_c_exist = true;
+        node["s"] = "S"+node["s"];
+      }
+
+      if(document.getElementById("dead_id").checked){
+        node["a"] = "S";
+      }
+      if(document.getElementById("mother_id").value.length !== 0){
+        node["m"] = document.getElementById("mother_id").value;
+      }
+      document.getElementById("mother_id").value="";
+      if(document.getElementById("father_id").value.length !== 0){
+        node["f"] = document.getElementById("father_id").value;
+      }
+      document.getElementById("father_id").value = "";
+      if(document.getElementById("partners_id").value.length !== 0){
+        if(node["s"] === "M" || node["s"] === "SM"){
+          res = document.getElementById("partners_id").value.split(",");
+          node["ux"] = res;
+        }
+        if(node["s"] === "F" || node["s"] === "SF"){
+          node["vir"] = document.getElementById("partners_id").value.split(",");;
+        }
+        node["rs"] = document.getElementById("status_id").value.split(",");
+        node["st"] = document.getElementById("cstatus_id").value.split(",");
+      }
+      if(document.getElementById("age_id").value.length !== 0){
+        node["age"] = document.getElementById("age_id").value;
+      }
+      else{
+        alert("you must insert age!");
+        return;
+      }
+      if(document.getElementById("bdate_id").value.length !== 0){
+        node["bdate"] = document.getElementById("bdate_id").value;
+      }
+      else{
+        alert("you must insert birthday date!");
+        return;
+      }
+      if(document.getElementById("ddate_id").value.length !== 0){
+        node["bdate"] = node["bdate"]+"-"+document.getElementById("ddate_id").value;
+      }
+      console.debug(node);
       nodes.splice(num,0,node);
-      console.debug(nodes);
+      num++;
+      clear_fields();
+      $('html, body').animate({ scrollTop: 0 }, 'fast');
+      update_table();
     };
+    function update_table(){
+      console.debug(nodes);
+      var table = document.getElementById("table_body");
+      table.innerHTML = "";
+      for(i=0;i<nodes.length;i++){
+        node = nodes[i];
+        if(node["key"] === undefined)continue;
+        var row = table.insertRow(i);
+        var cell = row.insertCell(0);
+        cell.innerHTML = node["key"];
+        cell = row.insertCell(1);
+        cell.innerHTML = node["n"];
+        if(node["s"] === "SM" || node["s"] ==="SF"){
+          cell.style.color = "#FF0000";
+        }
+        cell = row.insertCell(2);
+        cell.innerHTML = node["f"];
+        cell = row.insertCell(3);
+        cell.innerHTML = node["m"];
+        cell = row.insertCell(4);
+        cell.innerHTML = "<button onclick='delete_node("+node["key"]+")'>Delete Node</button>";
+        cell = row.insertCell(5);
+        cell.innerHTML = "<button onclick='preview_node("+node["key"]+")'>Edit Node</button>";
+
+      }
+    }
     function delete_node(id){
       nodes.splice(id,1);
-      document.getElementById("myTable").deleteRow(id+1);
       num--;
       for(i=0;i<nodes.length;i++){
-        if(nodes[i]["partners"]!==undefined){
-          for(j=0;j<nodes["partners"].length;j++){
-            if(ndoes[i]["partners"][j]===id){
-              nodes[i]["partners"].splice(j,1);
+        if(nodes[i]["f"]===id || nodes[i]["m"]===id){
+          nodes[i]["f"].splice(0,1);
+          nodes[i]["m"].splice(0,1);
+        }
+        if(nodes[i]["ux"]!==undefined){
+          for(j=0;j<nodes["ux"].length;j++){
+            if(ndoes[i]["ux"][j]===id){
+              nodes[i]["ux"].splice(j,1);
+              nodes[i]["rs"].splice(j,1);
+              nodes[i]["st"].splice(j,1);
               j--;
+            }
+            if(nodes["ux"]===undefined)break;
+          }
+        }
+        if(nodes[i]["vir"]!==undefined){
+          for(j=0;j<nodes["vir"].length;j++){
+            if(ndoes[i]["vir"][j]===id){
+              nodes[i]["vir"].splice(j,1);
+              nodes[i]["rs"].splice(j,1);
+              nodes[i]["st"].splice(j,1);
+              j--;
+            }
+            if(nodes[i]["vir"]===undefined)break;
+          }
+        }
+      }
+      for(i=0;i<nodes.length;i++){
+        if(nodes[i]["key"]>id)nodes[i]["key"]--;
+        if(nodes[i]["f"]>id)nodes[i]["f"]--;
+        if(nodes[i]["m"]>id)nodes[i]["m"]--;
+        if(nodes[i]["ux"]!==undefined){
+          for(j=0;j<nodes["ux"].length;j++){
+            if(ndoes[i]["ux"][j]>id){
+              nodes[i]["ux"][j]--;
+            }
+          }
+        }
+        if(nodes[i]["vir"]!==undefined){
+          for(j=0;j<nodes["vir"].length;j++){
+            if(ndoes[i]["vir"][j]>id){
+              nodes[i]["vir"][j]--;
             }
           }
         }
       }
+      update_table();
     }
                                                       //load from database
     function load(){
@@ -236,6 +435,7 @@
                                                           //CREATING GENOGRAM
     var myDiagram;
     function init() {
+      nodes1 = nodes;
       if(myDiagram !== undefined) myDiagram.div = null;
       if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
       var $ = go.GraphObject.make;
@@ -673,7 +873,7 @@
           })
       ));
       // n: name, s: sex, m: mother, f: father, ux: wife, vir: husband, a: attributes/markers
-      setupDiagram(myDiagram, nodes,
+      setupDiagram(myDiagram, nodes1,
         -1 /* focus on this person */);
     }
     // create and initialize the Diagram.model given an array of node data representing people
