@@ -234,7 +234,7 @@
       }
       nodes[edit_id] = node;
       document.getElementById("add_edit_node_button").innerHTML = "Add node";
-      document.getElementById("add_edit_node_button").onclick = "add_node()";
+      document.getElementById("add_edit_node_button").setAttribute('onclick', "add_node()");
       $('html, body').animate({ scrollTop: 0 }, 'fast');
       clear_fields();
       update_table();
