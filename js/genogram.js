@@ -141,7 +141,7 @@
         document.getElementById("mother_id").value=node["m"];
       }
       if(node["f"] !==undefined){
-        document.getElementById("father_id").value=node["d"];
+        document.getElementById("father_id").value=node["f"];
       }
       if(node["ux"] !== undefined){
         i=0;
@@ -435,7 +435,7 @@
                                                           //CREATING GENOGRAM
     var myDiagram;
     function init() {
-      nodes1 = nodes;
+      nodes1 = nodes.slice(0);
       if(myDiagram !== undefined) myDiagram.div = null;
       if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
       var $ = go.GraphObject.make;
