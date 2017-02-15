@@ -39,10 +39,16 @@
   }
 
 }
-                                                   /*input div CSS*/
+#enterForm img {
+  border-radius: 50%;
+  }                                               /*input div CSS*/
 #enterForm textarea{
     font-family: "Comic Sans MS";
     margin: 4px 0px;
+    resize: none; 
+}
+#enterForm hr {
+  border-color: #4CAF50
 }
 
 #enterForm button {
@@ -83,9 +89,9 @@
     padding-left: 20px;
     padding-top: 20px;
 }
-table { border-collapse: collapse; border-spacing: 0; margin: 4px;}
+#myTable { border-collapse: collapse; border-spacing: 0; margin: 4px;}
 
-th{
+#myTable th{
   background: #acc8dd;
   padding-right: 40px;
   background-repeat: no-repeat;

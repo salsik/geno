@@ -1,3 +1,451 @@
+var num = 0;
+function clear_fields(){
+  document.getElementById("name_id").value="";
+  document.getElementById("male_id").checked = true;
+  document.getElementById("alive_id").checked = true;
+  document.getElementById("mainc_no").checked = true;
+  document.getElementById("mother_id").value="";
+  document.getElementById("father_id").value = "";
+  document.getElementById("partners_id").value = "";
+  document.getElementById("status_id").value = "";
+  document.getElementById("cstatus_id").value = "";
+  document.getElementById("age_id").value = "";
+  document.getElementById("bdate_id").value = "";
+  document.getElementById("ddate_id").value = "";
+}
+edit_id=0;
+function preview_node(id){
+  node = nodes[id];
+  edit_id = id;
+  document.getElementById("name_id").value=node["n"];
+  if(node["s"]==="M" || node["s"]==="SM"){
+    document.getElementById("male_id").checked = true;
+  }
+  if(node["s"]==="F" || node["s"]==="SF"){
+    document.getElementById("female_id").checked = true;
+  }
+  if(node["a"] !== undefined && node["a"] === "S"){
+    document.getElementById("dead_id").checked = true;
+  }
+  else{
+    document.getElementById("alive_id").checked = true;
+  }
+  if(node["s"] === "SM" || node["s"] === "SF"){
+    main_c_exist = false;
+    document.getElementById("mainc_yes").checked = true;
+  }
+  else{
+    document.getElementById("mainc_no").checked = true;
+  }
+  if(node["m"] !==undefined){
+    document.getElementById("mother_id").value=node["m"];
+  }
+  if(node["f"] !==undefined){
+    document.getElementById("father_id").value=node["f"];
+  }
+  if(node["ux"] !== undefined){
+    i=0;
+    for(i=0;i<node["ux"].length-1;i++){
+      document.getElementById("partners_id").value += node["ux"][i] + ",";
+      document.getElementById("status_id").value += node["rs"][i] + ",";
+      document.getElementById("cstatus_id").value += node["st"][i] + ",";
+    }
+    document.getElementById("partners_id").value += node["ux"][i];
+    document.getElementById("status_id").value += node["rs"][i];
+    document.getElementById("cstatus_id").value += node["st"][i];
+  }
+  if(node["vir"] !== undefined){
+    i=0;
+    for(i=0;i<node["vir"].length-1;i++){
+      document.getElementById("partners_id").value += node["vir"][i] + ",";
+      document.getElementById("status_id").value += node["rs"][i] + ",";
+      document.getElementById("cstatus_id").value += node["st"][i] + ",";
+    }
+    document.getElementById("partners_id").value += node["vir"][i];
+    document.getElementById("status_id").value += node["rs"][i];
+    document.getElementById("cstatus_id").value += node["st"][i];
+  }
+  document.getElementById("age_id").value = node["age"];
+  document.getElementById("bdate_id").value = node["bdate"];
+  if(node["ddate"] !== undefined){
+    document.getElementById("ddate_id").value = node["ddate"];
+  }
+  document.getElementById("add_edit_node_button").innerHTML = "Edit node";
+  document.getElementById("add_edit_node_button").setAttribute('onclick', "edit_node()");
+  $('html, body').animate({ scrollTop: 0 }, 'fast');
+}
+function edit_node(){
+  console.debug("Edit_node Function");
+  var node = [];
+  node["key"] = edit_id;
+  node["noc"] ="1";
+  node["n"] = document.getElementById("name_id").value;
+  if(document.getElementById("male_id").checked){
+    node["s"] = "M";
+  }
+  if(document.getElementById("female_id").checked){
+    node["s"] = "F";
+  }
+  if(document.getElementById("mainc_yes").checked){if(main_c_exist){
+      alert("There is another main charecter in this genogram");
+      return;
+    }
+    node["s"] = "S"+node["s"];
+  }
+
+  if(document.getElementById("dead_id").checked){
+    node["a"] = "S";
+  }
+  if(document.getElementById("mother_id").value.length !== 0){
+    node["m"] = document.getElementById("mother_id").value;
+  }
+  document.getElementById("mother_id").value="";
+  if(document.getElementById("father_id").value.length !== 0){
+    node["f"] = document.getElementById("father_id").value;
+  }
+  document.getElementById("father_id").value = "";
+  if(document.getElementById("partners_id").value.length !== 0){
+    if(node["s"] === "M" || node["s"] === "SM"){
+      res = document.getElementById("partners_id").value.split(",");
+      node["ux"] = res;
+    }
+    if(node["s"] === "F" || node["s"] === "SF"){
+      node["vir"] = document.getElementById("partners_id").value.split(",");;
+    }
+    node["rs"] = document.getElementById("status_id").value.split(",");
+    node["st"] = document.getElementById("cstatus_id").value.split(",");
+  }
+  if(document.getElementById("age_id").value.length !== 0){
+    node["age"] = document.getElementById("age_id").value;
+  }
+  else{
+    alert("you must insert age!");
+    return;
+  }
+  if(document.getElementById("bdate_id").value.length !== 0){
+    node["bdate"] = document.getElementById("bdate_id").value;
+  }
+  else{
+    alert("you must insert birthday date!");
+    return;
+  }
+  if(document.getElementById("ddate_id").value.length !== 0){
+    node["bdate"] = node["bdate"]+"-"+document.getElementById("ddate_id").value;
+  }
+  nodes[edit_id] = node;
+  document.getElementById("add_edit_node_button").innerHTML = "Add node";
+  document.getElementById("add_edit_node_button").setAttribute('onclick', "add_node()");
+  $('html, body').animate({ scrollTop: 0 }, 'fast');
+  clear_fields();
+  update_table();
+}
+main_c_exist = false;
+function add_node(){
+  var node = [];
+  node["key"] = num;
+  node["noc"] ="1";
+  node["n"] = document.getElementById("name_id").value;
+  if(document.getElementById("male_id").checked){
+    node["s"] = "M";
+  }
+  if(document.getElementById("female_id").checked){
+    node["s"] = "F";
+  }
+  if(document.getElementById("gay_id").checked){
+    node["s"] = "G"+node["s"];
+  }
+  if(document.getElementById("mainc_yes").checked){
+    if(main_c_exist){
+      alert("There is another main charecter in this genogram");
+      return;
+    }
+    main_c_exist = true;
+    node["s"] = "S"+node["s"];
+  }
+
+  if(document.getElementById("dead_id").checked){
+    node["a"] = "S";
+  }
+  if(document.getElementById("mother_id").value.length !== 0){
+    node["m"] = document.getElementById("mother_id").value;
+  }
+  document.getElementById("mother_id").value="";
+  if(document.getElementById("father_id").value.length !== 0){
+    node["f"] = document.getElementById("father_id").value;
+  }
+  document.getElementById("father_id").value = "";
+  if(document.getElementById("partners_id").value.length !== 0){
+    if(node["s"] === "M" || node["s"] === "SM"){
+      res = document.getElementById("partners_id").value.split(",");
+      node["ux"] = res;
+    }
+    if(node["s"] === "F" || node["s"] === "SF"){
+      node["vir"] = document.getElementById("partners_id").value.split(",");;
+    }
+    node["rs"] = document.getElementById("status_id").value.split(",");
+    node["st"] = document.getElementById("cstatus_id").value.split(",");
+  }
+  if(document.getElementById("age_id").value.length !== 0){
+    node["age"] = document.getElementById("age_id").value;
+  }
+  else{
+    alert("you must insert age!");
+    return;
+  }
+  if(document.getElementById("bdate_id").value.length !== 0){
+    node["bdate"] = document.getElementById("bdate_id").value;
+  }
+  else{
+    alert("you must insert birthday date!");
+    return;
+  }
+  if(document.getElementById("ddate_id").value.length !== 0){
+    node["bdate"] = node["bdate"]+"-"+document.getElementById("ddate_id").value;
+  }
+  console.debug(node);
+  nodes.splice(num,0,node);
+  num++;
+  clear_fields();
+  $('html, body').animate({ scrollTop: 0 }, 'fast');
+  update_table();
+};
+function update_table(){
+  console.debug(nodes);
+  var table = document.getElementById("table_body");
+  table.innerHTML = "";
+  for(i=0;i<nodes.length;i++){
+    node = nodes[i];
+    if(node["key"] === undefined)continue;
+    var row = table.insertRow(i);
+    var cell = row.insertCell(0);
+    cell.innerHTML = node["key"];
+    cell = row.insertCell(1);
+    cell.innerHTML = node["n"];
+    if(node["s"] === "SM" || node["s"] ==="SF"){
+      cell.style.color = "#FF0000";
+    }
+    cell = row.insertCell(2);
+    cell.innerHTML = node["f"];
+    cell = row.insertCell(3);
+    cell.innerHTML = node["m"];
+    cell = row.insertCell(4);
+    cell.innerHTML = "<button onclick='delete_node("+node["key"]+")'>Delete Node</button>";
+    cell = row.insertCell(5);
+    cell.innerHTML = "<button onclick='preview_node("+node["key"]+")'>Edit Node</button>";
+
+  }
+}
+function delete_node(id){
+  nodes.splice(id,1);
+  num--;
+  for(i=0;i<nodes.length;i++){
+    if(nodes[i]["f"]===id || nodes[i]["m"]===id){
+      nodes[i]["f"].splice(0,1);
+      nodes[i]["m"].splice(0,1);
+    }
+    if(nodes[i]["ux"]!==undefined){
+      for(j=0;j<nodes["ux"].length;j++){
+        if(ndoes[i]["ux"][j]===id){
+          nodes[i]["ux"].splice(j,1);
+          nodes[i]["rs"].splice(j,1);
+          nodes[i]["st"].splice(j,1);
+          j--;
+        }
+        if(nodes["ux"]===undefined)break;
+      }
+    }
+    if(nodes[i]["vir"]!==undefined){
+      for(j=0;j<nodes["vir"].length;j++){
+        if(ndoes[i]["vir"][j]===id){
+          nodes[i]["vir"].splice(j,1);
+          nodes[i]["rs"].splice(j,1);
+          nodes[i]["st"].splice(j,1);
+          j--;
+        }
+        if(nodes[i]["vir"]===undefined)break;
+      }
+    }
+  }
+  for(i=0;i<nodes.length;i++){
+    if(nodes[i]["key"]>id)nodes[i]["key"]--;
+    if(nodes[i]["f"]>id)nodes[i]["f"]--;
+    if(nodes[i]["m"]>id)nodes[i]["m"]--;
+    if(nodes[i]["ux"]!==undefined){
+      for(j=0;j<nodes["ux"].length;j++){
+        if(ndoes[i]["ux"][j]>id){
+          nodes[i]["ux"][j]--;
+        }
+      }
+    }
+    if(nodes[i]["vir"]!==undefined){
+      for(j=0;j<nodes["vir"].length;j++){
+        if(ndoes[i]["vir"][j]>id){
+          nodes[i]["vir"][j]--;
+        }
+      }
+    }
+  }
+  update_table();
+}
+                                                  //load from database
+function load(){
+  $.ajax({
+      url:"ajaxarr.php",
+      type:"POST",
+      success:function(msg){
+          console.debug(msg);
+          for(var i=0; i<msg.length;i++){
+            node = [];
+            node["key"] = msg[i][0];
+            node["n"] = msg[i][1];
+            if(msg[i][2] === "m"){
+              node["s"] = "M";
+            }
+            if(msg[i][2] === "f"){
+              node["s"] = "F";
+            }
+            if(msg[i][3] === "dead"){
+              node["a"] = "S";
+            }
+            if(msg[i][4] === "yes"){
+              if(node["s"] === "M")node["s"] = "SM";
+              else node["s"] = "SF";
+            }
+            if(node["s"] === "M" || node["s"] === "SM"){
+              node["ux"] = msg[i][5];
+            }
+            else{
+              node["vir"] = msg[i][5];
+            }
+            node["rs"] = msg[i][6];
+            node["st"] = msg[i][7];
+            if(msg[i][8]!=="-1"){
+              node["f"] = msg[i][8];
+            }
+            if(msg[i][9]!=="-1"){
+              node["m"] = msg[i][9];
+            }
+            node["age"] = msg[i][10];
+            node["bdate"] = msg[i][11];
+            node["noc"] = "1";
+            nodes.push(node);
+          }
+      },
+      dataType:"JSON"
+  });
+  console.debug(nodes);
+}
+function search()
+{
+  nodes = [];
+  $.post('ajaxarr.php', { patient: document.getElementById("patientname").value},
+    function(msg){
+          console.debug(msg);
+            for(var i=0; i<msg.length;i++){
+              node = [];
+              node["key"] = msg[i][0];
+              node["n"] = msg[i][1];
+              if(msg[i][2] === "m"){
+                node["s"] = "M";
+              }
+              if(msg[i][2] === "f"){
+                node["s"] = "F";
+              }
+              if(msg[i][3] === "dead"){
+                node["a"] = "S";
+              }
+              if(msg[i][4] === "yes"){
+                if(node["s"] === "M")node["s"] = "SM";
+                else node["s"] = "SF";
+              }
+              if(node["s"] === "M" || node["s"] === "SM"){
+                node["ux"] = msg[i][5];
+              }
+              else{
+                node["vir"] = msg[i][5];
+              }
+              node["rs"] = msg[i][6];
+              node["st"] = msg[i][7];
+              if(msg[i][8]!=="-1"){
+                node["f"] = msg[i][8];
+              }
+              if(msg[i][9]!=="-1"){
+                node["m"] = msg[i][9];
+              }
+              node["age"] = msg[i][10];
+              node["bdate"] = msg[i][11];
+              node["noc"] = "1";
+              nodes.push(node);
+            }
+            init();
+
+  },"json").fail(function(){
+      if(myDiagram.div!==undefined)
+        myDiagram.div=null;
+      alert("Patient not found");
+  });
+
+  //alert('hello  ' + document.getElementById("patientname").value );
+
+
+
+}
+
+function importxml()
+{
+  var xmlfile = document.getElementById('my_xml').click();
+
+  document.getElementById('my_xml').onchange = function () {
+    alert('Selected file: ' + this.value);
+  };
+
+
+
+}
+function save(){
+  d = new Date();
+  geno_id = d.getTime();
+  for(i =0 ;i<nodes.length;i++){
+    if(nodes[i].n === undefined) return;
+    if(nodes[i].s==="M" || nodes[i].s==="SM"){
+      gender = "m";
+    }
+    else gender = "f";
+    if(nodes[i].s === "SM" || nodes[i].s==="SF") mainc = "yes";
+    else mainc = "no";
+    if(nodes[i].f !== undefined)father = nodes[i].f;
+    else father = "-1";
+    if(nodes[i].m !== undefined)mother = nodes[i].m;
+    else mother = "-1";
+    if(gender==="m")partners = nodes[i].ux;
+    else partners = nodes[i].vir;
+    if(nodes[i].a === "S")status = "dead";
+    else status = "alive";
+    $.ajax({url: "upload_nodes.php",
+        type: "post",
+        data: {
+          'id' : nodes[i].key,
+          'name' : nodes[i].n,
+          'gender' : gender,
+          'mainc' : mainc,
+          'mother' : mother,
+          'father' : father,
+          'partners' : partners,
+          'status' : status,
+          'partners_status' : nodes[i].rs,
+          'current_status' : nodes[i].st,
+          'age' : nodes[i].age,
+          'date' : nodes[i].bdate,
+          'geno_id' : geno_id
+
+      }, /* merge your form with the new obj (your array) */
+        success: function (res) {
+            console.debug(res);
+        }
+    });
+  }
+}
+
   function getWidth() {
       if (self.innerWidth) {
         return self.innerWidth;
@@ -98,340 +546,6 @@
       { key: 39, n: "Maternal Great Great", s: "F", vir: [40] ,bdate: 1960,age:50, noc:2},
       { key: 40, n: "Maternal Great Great", s: "M" ,bdate: 1960,age:50, noc:2}
     ]*/;
-    var num = 0;
-    function clear_fields(){
-      document.getElementById("name_id").value="";
-      document.getElementById("male_id").checked = true;
-      document.getElementById("alive_id").checked = true;
-      document.getElementById("mainc_no").checked = true;
-      document.getElementById("mother_id").value="";
-      document.getElementById("father_id").value = "";
-      document.getElementById("partners_id").value = "";
-      document.getElementById("status_id").value = "";
-      document.getElementById("cstatus_id").value = "";
-      document.getElementById("age_id").value = "";
-      document.getElementById("bdate_id").value = "";
-      document.getElementById("ddate_id").value = "";
-    }
-    edit_id=0;
-    function preview_node(id){
-      node = nodes[id];
-      edit_id = id;
-      document.getElementById("name_id").value=node["n"];
-      if(node["s"]==="M" || node["s"]==="SM"){
-        document.getElementById("male_id").checked = true;
-      }
-      if(node["s"]==="F" || node["s"]==="SF"){
-        document.getElementById("female_id").checked = true;
-      }
-      if(node["a"] !== undefined && node["a"] === "S"){
-        document.getElementById("dead_id").checked = true;
-      }
-      else{
-        document.getElementById("alive_id").checked = true;
-      }
-      if(node["s"] === "SM" || node["s"] === "SF"){
-        main_c_exist = false;
-        document.getElementById("mainc_yes").checked = true;
-      }
-      else{
-        document.getElementById("mainc_no").checked = true;
-      }
-      if(node["m"] !==undefined){
-        document.getElementById("mother_id").value=node["m"];
-      }
-      if(node["f"] !==undefined){
-        document.getElementById("father_id").value=node["f"];
-      }
-      if(node["ux"] !== undefined){
-        i=0;
-        for(i=0;i<node["ux"].length-1;i++){
-          document.getElementById("partners_id").value += node["ux"][i] + ",";
-          document.getElementById("status_id").value += node["rs"][i] + ",";
-          document.getElementById("cstatus_id").value += node["st"][i] + ",";
-        }
-        document.getElementById("partners_id").value += node["ux"][i];
-        document.getElementById("status_id").value += node["rs"][i];
-        document.getElementById("cstatus_id").value += node["st"][i];
-      }
-      if(node["vir"] !== undefined){
-        i=0;
-        for(i=0;i<node["vir"].length-1;i++){
-          document.getElementById("partners_id").value += node["vir"][i] + ",";
-          document.getElementById("status_id").value += node["rs"][i] + ",";
-          document.getElementById("cstatus_id").value += node["st"][i] + ",";
-        }
-        document.getElementById("partners_id").value += node["vir"][i];
-        document.getElementById("status_id").value += node["rs"][i];
-        document.getElementById("cstatus_id").value += node["st"][i];
-      }
-      document.getElementById("age_id").value = node["age"];
-      document.getElementById("bdate_id").value = node["bdate"];
-      if(node["ddate"] !== undefined){
-        document.getElementById("ddate_id").value = node["ddate"];
-      }
-      document.getElementById("add_edit_node_button").innerHTML = "Edit node";
-      document.getElementById("add_edit_node_button").setAttribute('onclick', "edit_node()");
-      $('html, body').animate({ scrollTop: 0 }, 'fast');
-    }
-    function edit_node(){
-      console.debug("Edit_node Function");
-      var node = [];
-      node["key"] = edit_id;
-      node["noc"] ="1";
-      node["n"] = document.getElementById("name_id").value;
-      if(document.getElementById("male_id").checked){
-        node["s"] = "M";
-      }
-      if(document.getElementById("female_id").checked){
-        node["s"] = "F";
-      }
-      if(document.getElementById("mainc_yes").checked){if(main_c_exist){
-          alert("There is another main charecter in this genogram");
-          return;
-        }
-        node["s"] = "S"+node["s"];
-      }
-
-      if(document.getElementById("dead_id").checked){
-        node["a"] = "S";
-      }
-      if(document.getElementById("mother_id").value.length !== 0){
-        node["m"] = document.getElementById("mother_id").value;
-      }
-      document.getElementById("mother_id").value="";
-      if(document.getElementById("father_id").value.length !== 0){
-        node["f"] = document.getElementById("father_id").value;
-      }
-      document.getElementById("father_id").value = "";
-      if(document.getElementById("partners_id").value.length !== 0){
-        if(node["s"] === "M" || node["s"] === "SM"){
-          res = document.getElementById("partners_id").value.split(",");
-          node["ux"] = res;
-        }
-        if(node["s"] === "F" || node["s"] === "SF"){
-          node["vir"] = document.getElementById("partners_id").value.split(",");;
-        }
-        node["rs"] = document.getElementById("status_id").value.split(",");
-        node["st"] = document.getElementById("cstatus_id").value.split(",");
-      }
-      if(document.getElementById("age_id").value.length !== 0){
-        node["age"] = document.getElementById("age_id").value;
-      }
-      else{
-        alert("you must insert age!");
-        return;
-      }
-      if(document.getElementById("bdate_id").value.length !== 0){
-        node["bdate"] = document.getElementById("bdate_id").value;
-      }
-      else{
-        alert("you must insert birthday date!");
-        return;
-      }
-      if(document.getElementById("ddate_id").value.length !== 0){
-        node["bdate"] = node["bdate"]+"-"+document.getElementById("ddate_id").value;
-      }
-      nodes[edit_id] = node;
-      document.getElementById("add_edit_node_button").innerHTML = "Add node";
-      document.getElementById("add_edit_node_button").setAttribute('onclick', "add_node()");
-      $('html, body').animate({ scrollTop: 0 }, 'fast');
-      clear_fields();
-      update_table();
-    }
-    main_c_exist = false;
-    function add_node(){
-      var node = [];
-      node["key"] = num;
-      node["noc"] ="1";
-      node["n"] = document.getElementById("name_id").value;
-      if(document.getElementById("male_id").checked){
-        node["s"] = "M";
-      }
-      if(document.getElementById("female_id").checked){
-        node["s"] = "F";
-      }
-      if(document.getElementById("mainc_yes").checked){
-        if(main_c_exist){
-          alert("There is another main charecter in this genogram");
-          return;
-        }
-        main_c_exist = true;
-        node["s"] = "S"+node["s"];
-      }
-
-      if(document.getElementById("dead_id").checked){
-        node["a"] = "S";
-      }
-      if(document.getElementById("mother_id").value.length !== 0){
-        node["m"] = document.getElementById("mother_id").value;
-      }
-      document.getElementById("mother_id").value="";
-      if(document.getElementById("father_id").value.length !== 0){
-        node["f"] = document.getElementById("father_id").value;
-      }
-      document.getElementById("father_id").value = "";
-      if(document.getElementById("partners_id").value.length !== 0){
-        if(node["s"] === "M" || node["s"] === "SM"){
-          res = document.getElementById("partners_id").value.split(",");
-          node["ux"] = res;
-        }
-        if(node["s"] === "F" || node["s"] === "SF"){
-          node["vir"] = document.getElementById("partners_id").value.split(",");;
-        }
-        node["rs"] = document.getElementById("status_id").value.split(",");
-        node["st"] = document.getElementById("cstatus_id").value.split(",");
-      }
-      if(document.getElementById("age_id").value.length !== 0){
-        node["age"] = document.getElementById("age_id").value;
-      }
-      else{
-        alert("you must insert age!");
-        return;
-      }
-      if(document.getElementById("bdate_id").value.length !== 0){
-        node["bdate"] = document.getElementById("bdate_id").value;
-      }
-      else{
-        alert("you must insert birthday date!");
-        return;
-      }
-      if(document.getElementById("ddate_id").value.length !== 0){
-        node["bdate"] = node["bdate"]+"-"+document.getElementById("ddate_id").value;
-      }
-      console.debug(node);
-      nodes.splice(num,0,node);
-      num++;
-      clear_fields();
-      $('html, body').animate({ scrollTop: 0 }, 'fast');
-      update_table();
-    };
-    function update_table(){
-      console.debug(nodes);
-      var table = document.getElementById("table_body");
-      table.innerHTML = "";
-      for(i=0;i<nodes.length;i++){
-        node = nodes[i];
-        if(node["key"] === undefined)continue;
-        var row = table.insertRow(i);
-        var cell = row.insertCell(0);
-        cell.innerHTML = node["key"];
-        cell = row.insertCell(1);
-        cell.innerHTML = node["n"];
-        if(node["s"] === "SM" || node["s"] ==="SF"){
-          cell.style.color = "#FF0000";
-        }
-        cell = row.insertCell(2);
-        cell.innerHTML = node["f"];
-        cell = row.insertCell(3);
-        cell.innerHTML = node["m"];
-        cell = row.insertCell(4);
-        cell.innerHTML = "<button onclick='delete_node("+node["key"]+")'>Delete Node</button>";
-        cell = row.insertCell(5);
-        cell.innerHTML = "<button onclick='preview_node("+node["key"]+")'>Edit Node</button>";
-
-      }
-    }
-    function delete_node(id){
-      nodes.splice(id,1);
-      num--;
-      for(i=0;i<nodes.length;i++){
-        if(nodes[i]["f"]===id || nodes[i]["m"]===id){
-          nodes[i]["f"].splice(0,1);
-          nodes[i]["m"].splice(0,1);
-        }
-        if(nodes[i]["ux"]!==undefined){
-          for(j=0;j<nodes["ux"].length;j++){
-            if(ndoes[i]["ux"][j]===id){
-              nodes[i]["ux"].splice(j,1);
-              nodes[i]["rs"].splice(j,1);
-              nodes[i]["st"].splice(j,1);
-              j--;
-            }
-            if(nodes["ux"]===undefined)break;
-          }
-        }
-        if(nodes[i]["vir"]!==undefined){
-          for(j=0;j<nodes["vir"].length;j++){
-            if(ndoes[i]["vir"][j]===id){
-              nodes[i]["vir"].splice(j,1);
-              nodes[i]["rs"].splice(j,1);
-              nodes[i]["st"].splice(j,1);
-              j--;
-            }
-            if(nodes[i]["vir"]===undefined)break;
-          }
-        }
-      }
-      for(i=0;i<nodes.length;i++){
-        if(nodes[i]["key"]>id)nodes[i]["key"]--;
-        if(nodes[i]["f"]>id)nodes[i]["f"]--;
-        if(nodes[i]["m"]>id)nodes[i]["m"]--;
-        if(nodes[i]["ux"]!==undefined){
-          for(j=0;j<nodes["ux"].length;j++){
-            if(ndoes[i]["ux"][j]>id){
-              nodes[i]["ux"][j]--;
-            }
-          }
-        }
-        if(nodes[i]["vir"]!==undefined){
-          for(j=0;j<nodes["vir"].length;j++){
-            if(ndoes[i]["vir"][j]>id){
-              nodes[i]["vir"][j]--;
-            }
-          }
-        }
-      }
-      update_table();
-    }
-                                                      //load from database
-    function load(){
-      $.ajax({
-          url:"ajaxarr.php",
-          type:"POST",
-          success:function(msg){
-              console.debug(msg);
-              for(var i=0; i<msg.length;i++){
-                node = [];
-                node["key"] = msg[i][0];
-                node["n"] = msg[i][1];
-                if(msg[i][2] === "m"){
-                  node["s"] = "M";
-                }
-                if(msg[i][2] === "f"){
-                  node["s"] = "F";
-                }
-                if(msg[i][3] === "dead"){
-                  node["a"] = "S";
-                }
-                if(msg[i][4] === "yes"){
-                  if(node["s"] === "M")node["s"] = "SM";
-                  else node["s"] = "SF";
-                }
-                if(node["s"] === "M" || node["s"] === "SM"){
-                  node["ux"] = msg[i][5];
-                }
-                else{
-                  node["vir"] = msg[i][5];
-                }
-                node["rs"] = msg[i][6];
-                node["st"] = msg[i][7];
-                if(msg[i][8]!=="-1"){
-                  node["f"] = msg[i][8];
-                }
-                if(msg[i][9]!=="-1"){
-                  node["m"] = msg[i][9];
-                }
-                node["age"] = msg[i][10];
-                node["bdate"] = msg[i][11];
-                node["noc"] = "1";
-                nodes.push(node);
-              }
-          },
-          dataType:"JSON"
-      });
-      console.debug(nodes);
-    }
                                                           //CREATING GENOGRAM
     var myDiagram;
     function init() {
@@ -594,7 +708,72 @@
             )
           ),new go.Binding("noc","noc")
         ));
-      myDiagram.nodeTemplateMap.add("SM",  // male
+        myDiagram.nodeTemplateMap.add("GM",  // gay male
+          $(go.Node, "Vertical",
+            { locationSpot: go.Spot.Center, locationObjectName: "ICON" },
+            $(go.Panel,"Vertical",
+              $(go.TextBlock,
+                {
+                  width: 70,
+                  textAlign: "left",
+                  editable : true,
+                  isMultiline : false,
+                  font: "small-caps 15px Georgia, Serif",
+                  alignment: go.Spot.Center
+                },
+                  new go.Binding("text", "bdate")
+                ),
+            $(go.Panel,
+              { name: "ICON" },
+              $(go.Shape, "Square",
+                { width: 80, height: 80, strokeWidth: 2, fill: "white", portId: "" }),
+              $(go.Shape, "Triangle",
+                { width: 60, height: 60, strokeWidth: 2,margin: new go.Margin(10,0,0,10), fill: "white" }),
+              $(go.Panel,go.Panel.Vertical,{
+                width: 80
+              },
+                $(go.TextBlock,
+                {
+                  margin : new go.Margin(35,0,0,10),
+                  editable : true,
+                  isMultiline : false,
+                  textAlign: "center",
+                  font: "small-caps 15px Georgia, Serif",
+                  alignment: go.Spot.Center
+                },
+                  new go.Binding("text", "age")
+                )
+              )
+              ,
+              $(go.Panel,
+                { // for each attribute show a Shape at a particular place in the overall square
+                  itemTemplate:
+                    $(go.Panel,
+                      $(go.Shape,
+                        { width: 80,height: 80,stroke: null, strokeWidth: 0 },
+                        new go.Binding("fill", "", attrFill),
+                        new go.Binding("geometry", "", maleGeometry))
+                    ),
+                  margin: 1
+                },
+                new go.Binding("itemArray", "a")
+              )
+              ),$(go.TextBlock,{
+                width: 80
+              },
+              {
+                textAlign: "center",
+                editable : true,
+                isMultiline : false,
+               font: "small-caps 15px Georgia, Serif",
+               alignment: go.Spot.Center,
+               background: "white",
+               maxSize: new go.Size(NaN, NaN) },
+              new go.Binding("text", "n")
+              )
+            ),new go.Binding("noc","noc")
+          ));
+      myDiagram.nodeTemplateMap.add("SM",  // main male
         $(go.Node, "Vertical",
           { locationSpot: go.Spot.Center, locationObjectName: "ICON" },
           $(go.Panel,"Vertical",
@@ -724,7 +903,74 @@
           )
           ),new go.Binding("noc","noc")
         ));
-      myDiagram.nodeTemplateMap.add("SF",  // female
+        myDiagram.nodeTemplateMap.add("GF",  // lesbien female
+          $(go.Node, "Vertical",
+            { locationSpot: go.Spot.Center, locationObjectName: "ICON" },
+            $(go.Panel,"Vertical",
+              $(go.TextBlock,
+                {
+                  width: 70,
+                  textAlign: "left",
+                  font: "small-caps 15px Georgia, Serif",
+                  alignment: go.Spot.Center,
+                  editable : true,
+                  isMultiline : false
+                },
+                  new go.Binding("text", "bdate")
+                ),
+
+            $(go.Panel,
+              { name: "ICON" },
+
+              $(go.Shape, "Circle",
+                { width: 80, height: 80, strokeWidth: 2, fill: "white", portId: "" }),
+              $(go.Shape, "Triangle",
+                  { width: 60, height: 60, strokeWidth: 2,margin: new go.Margin(10,0,0,10), fill: "white"}),
+              $(go.Panel,go.Panel.Vertical,
+
+                $(go.TextBlock,
+                {
+                  margin : new go.Margin(35,35,35,35),
+                  textAlign: "center",
+                  font: "small-caps 15px Georgia, Serif",
+                  editable : true,
+                  isMultiline : false
+                },
+
+                  new go.Binding("text", "age")
+
+                )
+              ),
+              $(go.Panel,
+                { // for each attribute show a Shape at a particular place in the overall circle
+                  itemTemplate:
+                    $(go.Panel,
+                      {width: 80,height: 80},
+                      $(go.Shape,
+                        { width: 56.5, height: 56.5, stroke: null, strokeWidth: 0, margin: 12},
+                        new go.Binding("fill", "", attrFill),
+                        new go.Binding("geometry", "", femaleGeometry))
+                    ),
+                  margin: 1
+                },
+                new go.Binding("itemArray", "a")
+              )
+            ),$(go.TextBlock,{
+              width: 80
+            },
+            {
+              textAlign: "center",
+              editable : true,
+              isMultiline : false,
+             font: "small-caps 15px Georgia, Serif",
+             alignment: go.Spot.Center,
+             background: "white",
+             maxSize: new go.Size(NaN, NaN) },
+            new go.Binding("text", "n")
+            )
+            ),new go.Binding("noc","noc")
+          ));
+      myDiagram.nodeTemplateMap.add("SF",  // main female
         $(go.Node, "Vertical",
           { locationSpot: go.Spot.Center, locationObjectName: "ICON" },
           $(go.Panel,"Vertical",
@@ -1253,115 +1499,3 @@
       }
       return null;
     };
-
-
-	function search()
-	{
-    nodes = [];
-		$.post('ajaxarr.php', { patient: document.getElementById("patientname").value},
-			function(msg){
-	          console.debug(msg);
-              for(var i=0; i<msg.length;i++){
-                node = [];
-                node["key"] = msg[i][0];
-                node["n"] = msg[i][1];
-                if(msg[i][2] === "m"){
-                  node["s"] = "M";
-                }
-                if(msg[i][2] === "f"){
-                  node["s"] = "F";
-                }
-                if(msg[i][3] === "dead"){
-                  node["a"] = "S";
-                }
-                if(msg[i][4] === "yes"){
-                  if(node["s"] === "M")node["s"] = "SM";
-                  else node["s"] = "SF";
-                }
-                if(node["s"] === "M" || node["s"] === "SM"){
-                  node["ux"] = msg[i][5];
-                }
-                else{
-                  node["vir"] = msg[i][5];
-                }
-                node["rs"] = msg[i][6];
-                node["st"] = msg[i][7];
-                if(msg[i][8]!=="-1"){
-                  node["f"] = msg[i][8];
-                }
-                if(msg[i][9]!=="-1"){
-                  node["m"] = msg[i][9];
-                }
-                node["age"] = msg[i][10];
-                node["bdate"] = msg[i][11];
-                node["noc"] = "1";
-                nodes.push(node);
-              }
-              init();
-
-		},"json").fail(function(){
-        if(myDiagram.div!==undefined)
-          myDiagram.div=null;
-			  alert("Patient not found");
-		});
-
-		//alert('hello  ' + document.getElementById("patientname").value );
-
-
-
-	}
-
-	function importxml()
-	{
-		var xmlfile = document.getElementById('my_xml').click();
-
-		document.getElementById('my_xml').onchange = function () {
-		  alert('Selected file: ' + this.value);
-		};
-
-
-
-	}
-  function save(){
-    d = new Date();
-    geno_id = d.getTime();
-    for(i =0 ;i<nodes.length;i++){
-      if(nodes[i].n === undefined) return;
-      if(nodes[i].s==="M" || nodes[i].s==="SM"){
-        gender = "m";
-      }
-      else gender = "f";
-      if(nodes[i].s === "SM" || nodes[i].s==="SF") mainc = "yes";
-      else mainc = "no";
-      if(nodes[i].f !== undefined)father = nodes[i].f;
-      else father = "-1";
-      if(nodes[i].m !== undefined)mother = nodes[i].m;
-      else mother = "-1";
-      if(gender==="m")partners = nodes[i].ux;
-      else partners = nodes[i].vir;
-      if(nodes[i].a === "S")status = "dead";
-      else status = "alive";
-      $.ajax({url: "upload_nodes.php",
-          type: "post",
-          data: {
-            'id' : nodes[i].key,
-            'name' : nodes[i].n,
-            'gender' : gender,
-            'mainc' : mainc,
-            'mother' : mother,
-            'father' : father,
-            'partners' : partners,
-            'status' : status,
-            'partners_status' : nodes[i].rs,
-            'current_status' : nodes[i].st,
-            'age' : nodes[i].age,
-            'date' : nodes[i].bdate,
-            'geno_id' : geno_id
-
-        }, /* merge your form with the new obj (your array) */
-          success: function (res) {
-              console.debug(res);
-          }
-      });
-    }
-  }
