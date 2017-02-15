@@ -37,6 +37,9 @@ function preview_node(id){
   else{
     document.getElementById("mainc_no").checked = true;
   }
+  if(node["s"] === "GM" || node["s"] === "GF"){
+    document.getElementById("gay_id").checked = true;
+  }
   if(node["m"] !==undefined){
     document.getElementById("mother_id").value=node["m"];
   }
@@ -86,13 +89,17 @@ function edit_node(){
   if(document.getElementById("female_id").checked){
     node["s"] = "F";
   }
-  if(document.getElementById("mainc_yes").checked){if(main_c_exist){
+  if(document.getElementById("mainc_yes").checked){
+    if(main_c_exist){
       alert("There is another main charecter in this genogram");
       return;
     }
+    main_c_exist = true;
     node["s"] = "S"+node["s"];
   }
-
+  if(document.getElementById("gay_id").checked){
+    node["s"] = "G"+node["s"];
+  }
   if(document.getElementById("dead_id").checked){
     node["a"] = "S";
   }
@@ -151,9 +158,6 @@ function add_node(){
   if(document.getElementById("female_id").checked){
     node["s"] = "F";
   }
-  if(document.getElementById("gay_id").checked){
-    node["s"] = "G"+node["s"];
-  }
   if(document.getElementById("mainc_yes").checked){
     if(main_c_exist){
       alert("There is another main charecter in this genogram");
@@ -162,7 +166,9 @@ function add_node(){
     main_c_exist = true;
     node["s"] = "S"+node["s"];
   }
-
+  if(document.getElementById("gay_id").checked){
+    node["s"] = "G"+node["s"];
+  }
   if(document.getElementById("dead_id").checked){
     node["a"] = "S";
   }
@@ -188,17 +194,17 @@ function add_node(){
   if(document.getElementById("age_id").value.length !== 0){
     node["age"] = document.getElementById("age_id").value;
   }
-  else{
-    alert("you must insert age!");
-    return;
-  }
+  // else{
+  //   alert("you must insert age!");
+  //   return;
+  // }
   if(document.getElementById("bdate_id").value.length !== 0){
     node["bdate"] = document.getElementById("bdate_id").value;
   }
-  else{
-    alert("you must insert birthday date!");
-    return;
-  }
+  // else{
+  //   alert("you must insert birthday date!");
+  //   return;
+  // }
   if(document.getElementById("ddate_id").value.length !== 0){
     node["bdate"] = node["bdate"]+"-"+document.getElementById("ddate_id").value;
   }
@@ -298,18 +304,9 @@ function load(){
             node = [];
             node["key"] = msg[i][0];
             node["n"] = msg[i][1];
-            if(msg[i][2] === "m"){
-              node["s"] = "M";
-            }
-            if(msg[i][2] === "f"){
-              node["s"] = "F";
-            }
+            node["s"] == msg[i][2];
             if(msg[i][3] === "dead"){
               node["a"] = "S";
-            }
-            if(msg[i][4] === "yes"){
-              if(node["s"] === "M")node["s"] = "SM";
-              else node["s"] = "SF";
             }
             if(node["s"] === "M" || node["s"] === "SM"){
               node["ux"] = msg[i][5];
@@ -325,8 +322,10 @@ function load(){
             if(msg[i][9]!=="-1"){
               node["m"] = msg[i][9];
             }
-            node["age"] = msg[i][10];
-            node["bdate"] = msg[i][11];
+            if(msg[i][10]!="-1")
+              node["age"] = msg[i][10];
+            if(msg[i][11]!="-1")
+              node["bdate"] = msg[i][11];
             node["noc"] = "1";
             nodes.push(node);
           }
@@ -404,13 +403,14 @@ function importxml()
 }
 function save(){
   d = new Date();
+  if(!main_c_exist){
+    alert("There must be a main charecter!");
+    return;
+  }
   geno_id = d.getTime();
   for(i =0 ;i<nodes.length;i++){
     if(nodes[i].n === undefined) return;
-    if(nodes[i].s==="M" || nodes[i].s==="SM"){
-      gender = "m";
-    }
-    else gender = "f";
+    gender = nodes[i].s;
     if(nodes[i].s === "SM" || nodes[i].s==="SF") mainc = "yes";
     else mainc = "no";
     if(nodes[i].f !== undefined)father = nodes[i].f;
@@ -439,10 +439,20 @@ function save(){
           'geno_id' : geno_id
 
       }, /* merge your form with the new obj (your array) */
-        success: function (res) {
-            console.debug(res);
+        error: function () {
+          $.ajax(){url: "Delete_geno.php",
+              type: "post",
+              data: {
+                'geno_id': geno_id
+            }
         }
+        alert("failed to save the genogram ..please try again later");
+        return;
     });
+    nodes = [];
+    update_table();
+    alert("Genogram saved successfully");
+    console.debug(res);
   }
 }
 
@@ -499,7 +509,7 @@ function save(){
       imgDiv.innerHTML="";
     }
                                                     //READING INPUT
-    var nodes = []/*[
+    var nodes = [] /*[
       { key: 0, n: "Aaron", s: "SM", m:23, f:24, ux: [1] , rs: ["R"], st: ["S"], age:50, bdate: 1960, noc:3},
       { key: 1, n: "Alice", s: "F", m:30, f:31 , age:50, bdate: 1960, noc:3},
       { key: 2, n: "Bob", s: "M", m: 1, f: 0, ux: [3] , age:50, bdate: 1960, noc:1},
@@ -838,6 +848,73 @@ function save(){
             )
           ),new go.Binding("noc","noc")
         ));
+        myDiagram.nodeTemplateMap.add("GSM",  // gay main male
+          $(go.Node, "Vertical",
+            { locationSpot: go.Spot.Center, locationObjectName: "ICON" },
+            $(go.Panel,"Vertical",
+              $(go.TextBlock,
+                {
+                  width: 70,
+                  textAlign: "left",
+                  editable : true,
+                  isMultiline : false,
+                  font: "small-caps 15px Georgia, Serif",
+                  alignment: go.Spot.Center
+                },
+                  new go.Binding("text", "bdate")
+                ),
+            $(go.Panel,
+              { name: "ICON" },
+              $(go.Shape, "Square",
+                { width: 80, height: 80, strokeWidth: 2, fill: "white", portId: "" }),
+              $(go.Shape, "Square",
+                { width: 70, height: 70, margin: 5, strokeWidth: 2, fill: "white", portId: "" }),
+              $(go.Shape, "Triangle",
+                { width: 60, height: 60, strokeWidth: 2,margin: new go.Margin(10,0,0,10), fill: "white" }),
+              $(go.Panel,go.Panel.Vertical,{
+                width: 80
+              },
+                $(go.TextBlock,
+                {
+                  margin : new go.Margin(35,0,0,10),
+                  editable : true,
+                  isMultiline : false,
+                  textAlign: "center",
+                  font: "small-caps 15px Georgia, Serif",
+                  alignment: go.Spot.Center
+                },
+                  new go.Binding("text", "age")
+                )
+              )
+              ,
+              $(go.Panel,
+                { // for each attribute show a Shape at a particular place in the overall square
+                  itemTemplate:
+                    $(go.Panel,
+                      $(go.Shape,
+                        { width: 80,height: 80,stroke: null, strokeWidth: 0 },
+                        new go.Binding("fill", "", attrFill),
+                        new go.Binding("geometry", "", maleGeometry))
+                    ),
+                  margin: 1
+                },
+                new go.Binding("itemArray", "a")
+              )
+              ),$(go.TextBlock,{
+                width: 80
+              },
+              {
+                textAlign: "center",
+                editable : true,
+                isMultiline : false,
+               font: "small-caps 15px Georgia, Serif",
+               alignment: go.Spot.Center,
+               background: "white",
+               maxSize: new go.Size(NaN, NaN) },
+              new go.Binding("text", "n")
+              )
+            ),new go.Binding("noc","noc")
+          ));
       myDiagram.nodeTemplateMap.add("F",  // female
         $(go.Node, "Vertical",
           { locationSpot: go.Spot.Center, locationObjectName: "ICON" },
@@ -925,7 +1002,7 @@ function save(){
               $(go.Shape, "Circle",
                 { width: 80, height: 80, strokeWidth: 2, fill: "white", portId: "" }),
               $(go.Shape, "Triangle",
-                  { width: 60, height: 60, strokeWidth: 2,margin: new go.Margin(10,0,0,10), fill: "white"}),
+                  { width: 50, height: 50, strokeWidth: 2,margin: new go.Margin(10,0,0,15), fill: "white"}),
               $(go.Panel,go.Panel.Vertical,
 
                 $(go.TextBlock,
@@ -970,6 +1047,76 @@ function save(){
             )
             ),new go.Binding("noc","noc")
           ));
+          myDiagram.nodeTemplateMap.add("GSF",  // lesbien female
+            $(go.Node, "Vertical",
+              { locationSpot: go.Spot.Center, locationObjectName: "ICON" },
+              $(go.Panel,"Vertical",
+                $(go.TextBlock,
+                  {
+                    width: 70,
+                    textAlign: "left",
+                    font: "small-caps 15px Georgia, Serif",
+                    alignment: go.Spot.Center,
+                    editable : true,
+                    isMultiline : false
+                  },
+                    new go.Binding("text", "bdate")
+                  ),
+
+              $(go.Panel,
+                { name: "ICON" },
+
+                $(go.Shape, "Circle",
+                  { width: 80, height: 80, strokeWidth: 2, fill: "white", portId: "" }),
+
+                $(go.Shape, "Circle",
+                  { width: 70, height: 70, margin: 5, strokeWidth: 2, fill: "white", portId: "" }),
+                $(go.Shape, "Triangle",
+                    { width: 50, height: 50, strokeWidth: 2,margin: new go.Margin(10,0,0,15), fill: "white"}),
+                $(go.Panel,go.Panel.Vertical,
+
+                  $(go.TextBlock,
+                  {
+                    margin : new go.Margin(35,35,35,33),
+                    textAlign: "center",
+                    font: "small-caps 15px Georgia, Serif",
+                    editable : true,
+                    isMultiline : false
+                  },
+
+                    new go.Binding("text", "age")
+
+                  )
+                ),
+                $(go.Panel,
+                  { // for each attribute show a Shape at a particular place in the overall circle
+                    itemTemplate:
+                      $(go.Panel,
+                        {width: 80,height: 80},
+                        $(go.Shape,
+                          { width: 56.5, height: 56.5, stroke: null, strokeWidth: 0, margin: 12},
+                          new go.Binding("fill", "", attrFill),
+                          new go.Binding("geometry", "", femaleGeometry))
+                      ),
+                    margin: 1
+                  },
+                  new go.Binding("itemArray", "a")
+                )
+              ),$(go.TextBlock,{
+                width: 80
+              },
+              {
+                textAlign: "center",
+                editable : true,
+                isMultiline : false,
+               font: "small-caps 15px Georgia, Serif",
+               alignment: go.Spot.Center,
+               background: "white",
+               maxSize: new go.Size(NaN, NaN) },
+              new go.Binding("text", "n")
+              )
+              ),new go.Binding("noc","noc")
+            ));
       myDiagram.nodeTemplateMap.add("SF",  // main female
         $(go.Node, "Vertical",
           { locationSpot: go.Spot.Center, locationObjectName: "ICON" },

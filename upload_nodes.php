@@ -3,6 +3,8 @@ include 'dbConnect.php';
 $geno_id = $_POST['geno_id'];
 
 echo $geno_id;
+if(!isset($_POST['age'])) $_POST['age']="-1";
+if(!isset($_POST['date'])) $_POST['date']="-1";
 $queryst = "insert into node (id,geno_id,name,gender,father_id,mother_id,age,date,status,main_c) values ('".$_POST['id']."','".$geno_id."','".$_POST['name']."','".$_POST['gender']."','".$_POST['father']."','".$_POST['mother']."','".$_POST['age']."','".$_POST['date']."','".$_POST['status']."','".$_POST['mainc']."');";
 $query = mysqli_query($connect,$queryst);
 echo $queryst;
