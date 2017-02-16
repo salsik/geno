@@ -440,21 +440,22 @@ function save(){
 
       }, /* merge your form with the new obj (your array) */
         error: function () {
-          $.ajax(){url: "Delete_geno.php",
+          $.ajax({url: "Delete_geno.php",
               type: "post",
               data: {
                 'geno_id': geno_id
             }
-        }
+          });
         alert("failed to save the genogram ..please try again later");
         return;
-    });
+    }});
     nodes = [];
     update_table();
     alert("Genogram saved successfully");
     console.debug(res);
   }
 }
+
 
   function getWidth() {
       if (self.innerWidth) {

@@ -45,7 +45,8 @@
 #enterForm textarea{
     font-family: "Comic Sans MS";
     margin: 4px 0px;
-    resize: none; 
+    resize: none;
+    width: 200px;
 }
 #enterForm hr {
   border-color: #4CAF50
