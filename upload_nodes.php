@@ -9,8 +9,8 @@ $queryst = "insert into node (id,geno_id,name,gender,father_id,mother_id,age,dat
 $query = mysqli_query($connect,$queryst);
 echo $queryst;
 if(isset($_POST['twins'])){
-	for($i = 0;$i < $_POST['twins'].length; $i++){
-		$newquery= mysqli_query($connect,"insert into twins (geno_id,first_id,second_id) values ('".$geno_id."','".$_POST['id']."','".$_POST['twins'][$k]."'
+	for($i = 0;$i < count($_POST['twins']); $i++){
+		$newquery= mysqli_query($connect,"insert into twins (geno_id,first_id,second_id) values ('".$geno_id."','".$_POST['id']."','".$_POST['twins'][$i]."'
 	 );");
 	}
 }

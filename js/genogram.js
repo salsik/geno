@@ -369,25 +369,15 @@ function search()
   nodes = [];
   $.post('ajaxarr.php', { patient: document.getElementById("patientname").value},
     function(msg){
-          console.debug(msg);
             for(var i=0; i<msg.length;i++){
               node = [];
               node["key"] = msg[i][0];
               node["n"] = msg[i][1];
-              if(msg[i][2] === "m"){
-                node["s"] = "M";
-              }
-              if(msg[i][2] === "f"){
-                node["s"] = "F";
-              }
+              node["s"] = msg[i][2];
               if(msg[i][3] === "dead"){
                 node["a"] = "S";
               }
-              if(msg[i][4] === "yes"){
-                if(node["s"] === "M")node["s"] = "SM";
-                else node["s"] = "SF";
-              }
-              if(node["s"] === "M" || node["s"] === "SM"){
+              if(node["s"] === "M" || node["s"] === "SM" || node["s"] === "GM" || node["s"] === "GSM"){
                 node["ux"] = msg[i][5];
               }
               else{
@@ -401,8 +391,10 @@ function search()
               if(msg[i][9]!=="-1"){
                 node["m"] = msg[i][9];
               }
-              node["age"] = msg[i][10];
-              node["bdate"] = msg[i][11];
+              if(msg[i][10] !== "-1")
+                node["age"] = msg[i][10];
+              if(msg[i][11] !== "-1")
+                node["bdate"] = msg[i][11];
               node["twins"] = msg[i][12];
               node["noc"] = "1";
               nodes.push(node);
@@ -414,7 +406,7 @@ function search()
         myDiagram.div=null;
       alert("Patient not found");
   });
-
+  console.debug(nodes);
   //alert('hello  ' + document.getElementById("patientname").value );
 
 
@@ -438,6 +430,7 @@ function save(){
     alert("There must be a main charecter!");
     return;
   }
+  main_c_exist = false;
   geno_id = d.getTime();
   for(i =0 ;i<nodes.length;i++){
     if(nodes[i].n === undefined) return;
@@ -586,6 +579,8 @@ function save(){
     var myDiagram;
     function init() {
       nodes1 = nodes.slice(0);
+      console.debug(nodes);
+      console.debug(nodes1);
       if(myDiagram !== undefined) myDiagram.div = null;
       if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
       var $ = go.GraphObject.make;
@@ -1364,7 +1359,6 @@ function save(){
         var data = nodeDataArray[i];
         var key = data.key;
         var twins = data.twins;
-        console.debug(twins);
         if (twins !== undefined){
           for(var j = 0;j < twins.length; j++){
             var twin = twins[j];
