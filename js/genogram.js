@@ -403,6 +403,7 @@ function search()
               }
               node["age"] = msg[i][10];
               node["bdate"] = msg[i][11];
+              node["twins"] = msg[i][12];
               node["noc"] = "1";
               nodes.push(node);
             }
@@ -461,6 +462,7 @@ function save(){
           'mother' : mother,
           'father' : father,
           'partners' : partners,
+          'twins' : nodes[i].twins,
           'status' : status,
           'partners_status' : nodes[i].rs,
           'current_status' : nodes[i].st,

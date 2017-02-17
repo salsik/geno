@@ -32,7 +32,11 @@ array_push($nodes[$i], $row['name']);
 array_push($nodes[$i], $row['gender']);
 array_push($nodes[$i], $row['status']);
 array_push($nodes[$i], $row['main_c']);
-
+$result1 = mysqli_query($connect,"select * from twins where geno_id=".$row['geno_id']." and first_id=".$row['id']);
+$twins = array();
+while($row2 = mysqli_fetch_array($result1)){
+	array_push($twins,$row2['second_id']);
+}
 
 $result1 = mysqli_query($connect,"select * from relation where geno_id=".$row['geno_id']." and first_id=".$row['id']);
 $partners_id = array();
@@ -69,6 +73,7 @@ array_push($nodes[$i], $row['mother_id']);
 array_push($nodes[$i], $row['age']);
 array_push($nodes[$i], $row['date']);
 
+array_push($nodes[$i], $twins);
 
 
  $i++;
