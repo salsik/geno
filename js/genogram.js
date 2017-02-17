@@ -1,6 +1,8 @@
 var num = 0;
 function clear_fields(){
   document.getElementById("name_id").value="";
+  document.getElementById("gay_id").checked = false;
+  document.getElementById("twins_id").value="";
   document.getElementById("male_id").checked = true;
   document.getElementById("alive_id").checked = true;
   document.getElementById("mainc_no").checked = true;
@@ -17,7 +19,9 @@ edit_id=0;
 function preview_node(id){
   node = nodes[id];
   edit_id = id;
-  document.getElementById("name_id").value=node["n"];
+  if(node["n"] !== undefined){
+    document.getElementById("name_id").value=node["n"];
+  }
   if(node["s"]==="M" || node["s"]==="SM"){
     document.getElementById("male_id").checked = true;
   }
@@ -37,7 +41,7 @@ function preview_node(id){
   else{
     document.getElementById("mainc_no").checked = true;
   }
-  if(node["s"] === "GM" || node["s"] === "GF"){
+  if(node["s"] === "GM" || node["s"] === "GF" || node["s"] === "GSM" || node["s"] === "GSF"){
     document.getElementById("gay_id").checked = true;
   }
   if(node["m"] !==undefined){
@@ -68,8 +72,12 @@ function preview_node(id){
     document.getElementById("status_id").value += node["rs"][i];
     document.getElementById("cstatus_id").value += node["st"][i];
   }
-  document.getElementById("age_id").value = node["age"];
-  document.getElementById("bdate_id").value = node["bdate"];
+  if(node["age_id"] !== undefined){
+    document.getElementById("age_id").value = node["age"];
+  }
+  if(node["bdate"] !== undefined){
+    document.getElementById("bdate_id").value = node["bdate"];
+  }
   if(node["ddate"] !== undefined){
     document.getElementById("ddate_id").value = node["ddate"];
   }
@@ -100,8 +108,14 @@ function edit_node(){
   if(document.getElementById("gay_id").checked){
     node["s"] = "G"+node["s"];
   }
+  if(document.getElementById("gay_id").checked){
+    node["s"] = "G"+node["s"];
+  }
   if(document.getElementById("dead_id").checked){
     node["a"] = "S";
+  }
+  if(document.getElementById("twins_id").value.length !== 0){
+    node["twins"] = document.getElementById("twins_id").value.split(",");
   }
   if(document.getElementById("mother_id").value.length !== 0){
     node["m"] = document.getElementById("mother_id").value;
@@ -119,23 +133,22 @@ function edit_node(){
     if(node["s"] === "F" || node["s"] === "SF"){
       node["vir"] = document.getElementById("partners_id").value.split(",");;
     }
+    var part = document.getElementById("partners_id").value.split(",");
+    var sts = document.getElementById("status_id").value.split(",");
+    var csts = document.getElementById("cstatus_id").value.split(",");
+    if(part.length > sts.length){
+      alert("Please Enter Status for each partner!");
+      return;
+    }
+    if(part.length > csts.length){
+      alert("Please Enter Current Status for each partner!");
+      return;
+    }
     node["rs"] = document.getElementById("status_id").value.split(",");
     node["st"] = document.getElementById("cstatus_id").value.split(",");
   }
-  if(document.getElementById("age_id").value.length !== 0){
-    node["age"] = document.getElementById("age_id").value;
-  }
-  else{
-    alert("you must insert age!");
-    return;
-  }
-  if(document.getElementById("bdate_id").value.length !== 0){
-    node["bdate"] = document.getElementById("bdate_id").value;
-  }
-  else{
-    alert("you must insert birthday date!");
-    return;
-  }
+  node["age"] = document.getElementById("age_id").value;
+  node["bdate"] = document.getElementById("bdate_id").value;
   if(document.getElementById("ddate_id").value.length !== 0){
     node["bdate"] = node["bdate"]+"-"+document.getElementById("ddate_id").value;
   }
@@ -180,6 +193,10 @@ function add_node(){
     node["f"] = document.getElementById("father_id").value;
   }
   document.getElementById("father_id").value = "";
+  if(document.getElementById("twins_id").value.length !== 0){
+    node["twins"] = document.getElementById("twins_id").value.split(",");
+    document.getElementById("twins_id").value = "";
+  }
   if(document.getElementById("partners_id").value.length !== 0){
     if(node["s"] === "M" || node["s"] === "SM"){
       res = document.getElementById("partners_id").value.split(",");
@@ -187,6 +204,19 @@ function add_node(){
     }
     if(node["s"] === "F" || node["s"] === "SF"){
       node["vir"] = document.getElementById("partners_id").value.split(",");;
+    }
+    var part = document.getElementById("partners_id").value.split(",");
+    var sts = document.getElementById("status_id").value.split(",");
+    var csts = document.getElementById("cstatus_id").value.split(",");
+    if(part.length > sts.length){
+      alert("Please Enter Status for each partner!");
+      clear_fields();
+      return;
+    }
+    if(part.length > csts.length){
+      alert("Please Enter Current Status for each partner!");
+      clear_fields();
+      return;
     }
     node["rs"] = document.getElementById("status_id").value.split(",");
     node["st"] = document.getElementById("cstatus_id").value.split(",");
@@ -438,22 +468,15 @@ function save(){
           'date' : nodes[i].bdate,
           'geno_id' : geno_id
 
-      }, /* merge your form with the new obj (your array) */
-        error: function () {
-          $.ajax({url: "Delete_geno.php",
-              type: "post",
-              data: {
-                'geno_id': geno_id
-            }
-          });
-        alert("failed to save the genogram ..please try again later");
-        return;
-    }});
-    nodes = [];
-    update_table();
-    alert("Genogram saved successfully");
-    console.debug(res);
+      },success: function(res){
+        console.debug(res);
+      }
+    });
+
   }
+  nodes = [];
+  update_table();
+  alert("Genogram saved successfully");
 }
 
 
@@ -596,7 +619,7 @@ function save(){
           case "J": return "chartreuse";
           case "K": return "lightgray";
           case "L": return "magenta";
-          case "S": return "red";
+          case "S": return "black";
           default: return "transparent";
         }
       }
@@ -606,8 +629,8 @@ function save(){
       var trsq = go.Geometry.parse("F M20 1 l19 0 0 19 -19 0z");
       var brsq = go.Geometry.parse("F M20 20 l19 0 0 19 -19 0z");
       var blsq = go.Geometry.parse("F M1 20 l19 0 0 19 -19 0z");
-      var slash = go.Geometry.parse("F M38 0 L40 0 40 2 2 40 0 40 0 38z" +
-      "F M2 0 L40 38 40 40 38 40 0 2 0 0z");
+      var slash = go.Geometry.parse("F M39 0 L40 0 40 1 1 40 0 40 0 39z" +
+      "F M1 0 L40 39 40 40 39 40 0 1 0 0z");
       function maleGeometry(a) {
         switch (a) {
           case "A": return tlsq;
@@ -675,22 +698,6 @@ function save(){
             { name: "ICON" },
             $(go.Shape, "Square",
               { width: 80, height: 80, strokeWidth: 2, fill: "white", portId: "" }),
-            $(go.Panel,go.Panel.Vertical,{
-              width: 80
-            },
-              $(go.TextBlock,
-              {
-                margin : new go.Margin(35,0,0,10),
-                editable : true,
-                isMultiline : false,
-                textAlign: "center",
-                font: "small-caps 15px Georgia, Serif",
-                alignment: go.Spot.Center
-              },
-                new go.Binding("text", "age")
-              )
-            )
-            ,
             $(go.Panel,
               { // for each attribute show a Shape at a particular place in the overall square
                 itemTemplate:
@@ -703,10 +710,25 @@ function save(){
                 margin: 1
               },
               new go.Binding("itemArray", "a")
-            )
-            ),$(go.TextBlock,{
-              width: 80
+            ),
+          $(go.Panel,go.Panel.Vertical,{
+            width: 80
+          },
+            $(go.TextBlock,
+            {
+              margin : new go.Margin(35,0,0,10),
+              editable : true,
+              isMultiline : false,
+              textAlign: "center",
+              background: "white",
+              font: "small-caps 15px Georgia, Serif",
+              alignment: go.Spot.Center
             },
+              new go.Binding("text", "age")
+            )
+          )
+
+            ),$(go.TextBlock,
             {
               textAlign: "center",
               editable : true,
@@ -739,22 +761,7 @@ function save(){
               $(go.Shape, "Square",
                 { width: 80, height: 80, strokeWidth: 2, fill: "white", portId: "" }),
               $(go.Shape, "Triangle",
-                { width: 60, height: 60, strokeWidth: 2,margin: new go.Margin(10,0,0,10), fill: "white" }),
-              $(go.Panel,go.Panel.Vertical,{
-                width: 80
-              },
-                $(go.TextBlock,
-                {
-                  margin : new go.Margin(35,0,0,10),
-                  editable : true,
-                  isMultiline : false,
-                  textAlign: "center",
-                  font: "small-caps 15px Georgia, Serif",
-                  alignment: go.Spot.Center
-                },
-                  new go.Binding("text", "age")
-                )
-              )
+                { width: 60, height: 60, strokeWidth: 2,margin: new go.Margin(10,0,0,10), fill: "white" })
               ,
               $(go.Panel,
                 { // for each attribute show a Shape at a particular place in the overall square
@@ -768,10 +775,24 @@ function save(){
                   margin: 1
                 },
                 new go.Binding("itemArray", "a")
-              )
-              ),$(go.TextBlock,{
-                width: 80
+              ),
+            $(go.Panel,go.Panel.Vertical,{
+              width: 80
+            },
+              $(go.TextBlock,
+              {
+                margin : new go.Margin(35,0,0,10),
+                editable : true,
+                isMultiline : false,
+                textAlign: "center",
+                background: "white",
+                font: "small-caps 15px Georgia, Serif",
+                alignment: go.Spot.Center
               },
+                new go.Binding("text", "age")
+              )
+            )
+              ),$(go.TextBlock,
               {
                 textAlign: "center",
                 editable : true,
@@ -805,22 +826,6 @@ function save(){
               { width: 80, height: 80, strokeWidth: 2, fill: "white", portId: "" }),
             $(go.Shape, "Square",
               { width: 70, height: 70, margin: 5, strokeWidth: 2, fill: "white", portId: "" }),
-            $(go.Panel,go.Panel.Vertical,{
-              width: 80
-            },
-              $(go.TextBlock,
-              {
-                textAlign: "center",
-                font: "small-caps 15px Georgia, Serif",
-                alignment: go.Spot.Center,
-                editable : true,
-                isMultiline : false,
-                margin : new go.Margin(35,0,0,10)
-              },
-                new go.Binding("text", "age")
-              )
-            )
-            ,
             $(go.Panel,
               { // for each attribute show a Shape at a particular place in the overall square
                 itemTemplate:
@@ -833,10 +838,25 @@ function save(){
                 margin: 1
               },
               new go.Binding("itemArray", "a")
-            )
-            ),$(go.TextBlock,{
-              width: 80
+            ),
+          $(go.Panel,go.Panel.Vertical,{
+            width: 80
+          },
+            $(go.TextBlock,
+            {
+              textAlign: "center",
+              font: "small-caps 15px Georgia, Serif",
+              alignment: go.Spot.Center,
+              editable : true,
+              background: "white",
+              isMultiline : false,
+              margin : new go.Margin(35,0,0,10)
             },
+              new go.Binding("text", "age")
+            )
+          )
+
+            ),$(go.TextBlock,
             {
               textAlign: "center",
               editable : true,
@@ -872,22 +892,6 @@ function save(){
                 { width: 70, height: 70, margin: 5, strokeWidth: 2, fill: "white", portId: "" }),
               $(go.Shape, "Triangle",
                 { width: 60, height: 60, strokeWidth: 2,margin: new go.Margin(10,0,0,10), fill: "white" }),
-              $(go.Panel,go.Panel.Vertical,{
-                width: 80
-              },
-                $(go.TextBlock,
-                {
-                  margin : new go.Margin(35,0,0,10),
-                  editable : true,
-                  isMultiline : false,
-                  textAlign: "center",
-                  font: "small-caps 15px Georgia, Serif",
-                  alignment: go.Spot.Center
-                },
-                  new go.Binding("text", "age")
-                )
-              )
-              ,
               $(go.Panel,
                 { // for each attribute show a Shape at a particular place in the overall square
                   itemTemplate:
@@ -900,10 +904,25 @@ function save(){
                   margin: 1
                 },
                 new go.Binding("itemArray", "a")
-              )
-              ),$(go.TextBlock,{
-                width: 80
+              ),
+            $(go.Panel,go.Panel.Vertical,{
+              width: 80
+            },
+              $(go.TextBlock,
+              {
+                margin : new go.Margin(30,0,0,10),
+                editable : true,
+                isMultiline : false,
+                textAlign: "center",
+                background: "white",
+                font: "small-caps 15px Georgia, Serif",
+                alignment: go.Spot.Center
               },
+                new go.Binding("text", "age")
+              )
+            )
+
+            ),$(go.TextBlock,
               {
                 textAlign: "center",
                 editable : true,
@@ -937,21 +956,6 @@ function save(){
 
             $(go.Shape, "Circle",
               { width: 80, height: 80, strokeWidth: 2, fill: "white", portId: "" }),
-             $(go.Panel,go.Panel.Vertical,
-
-              $(go.TextBlock,
-              {
-                margin : new go.Margin(35,35,35,35),
-                textAlign: "center",
-                font: "small-caps 15px Georgia, Serif",
-                editable : true,
-                isMultiline : false
-              },
-
-                new go.Binding("text", "age")
-
-              )
-            ),
             $(go.Panel,
               { // for each attribute show a Shape at a particular place in the overall circle
                 itemTemplate:
@@ -965,10 +969,24 @@ function save(){
                 margin: 1
               },
               new go.Binding("itemArray", "a")
+            ),
+           $(go.Panel,go.Panel.Vertical,
+
+            $(go.TextBlock,
+            {
+              margin : new go.Margin(30,0,0,30),
+              textAlign: "center",
+              font: "small-caps 15px Georgia, Serif",
+              editable : true,
+              background: "white",
+              isMultiline : false
+            },
+
+              new go.Binding("text", "age")
+
             )
-          ),$(go.TextBlock,{
-            width: 80
-          },
+          )
+          ),$(go.TextBlock,
           {
             textAlign: "center",
             editable : true,
@@ -1004,21 +1022,6 @@ function save(){
                 { width: 80, height: 80, strokeWidth: 2, fill: "white", portId: "" }),
               $(go.Shape, "Triangle",
                   { width: 50, height: 50, strokeWidth: 2,margin: new go.Margin(10,0,0,15), fill: "white"}),
-              $(go.Panel,go.Panel.Vertical,
-
-                $(go.TextBlock,
-                {
-                  margin : new go.Margin(35,35,35,35),
-                  textAlign: "center",
-                  font: "small-caps 15px Georgia, Serif",
-                  editable : true,
-                  isMultiline : false
-                },
-
-                  new go.Binding("text", "age")
-
-                )
-              ),
               $(go.Panel,
                 { // for each attribute show a Shape at a particular place in the overall circle
                   itemTemplate:
@@ -1032,10 +1035,24 @@ function save(){
                   margin: 1
                 },
                 new go.Binding("itemArray", "a")
-              )
-            ),$(go.TextBlock,{
-              width: 80
+              ),
+          $(go.Panel,go.Panel.Vertical,
+
+            $(go.TextBlock,
+            {
+              margin : new go.Margin(30,0,0,30),
+              textAlign: "center",
+              font: "small-caps 15px Georgia, Serif",
+              editable : true,
+              background: "white",
+              isMultiline : false
             },
+
+              new go.Binding("text", "age")
+
+            )
+          )
+            ),$(go.TextBlock,
             {
               textAlign: "center",
               editable : true,
@@ -1074,21 +1091,6 @@ function save(){
                   { width: 70, height: 70, margin: 5, strokeWidth: 2, fill: "white", portId: "" }),
                 $(go.Shape, "Triangle",
                     { width: 50, height: 50, strokeWidth: 2,margin: new go.Margin(10,0,0,15), fill: "white"}),
-                $(go.Panel,go.Panel.Vertical,
-
-                  $(go.TextBlock,
-                  {
-                    margin : new go.Margin(35,35,35,33),
-                    textAlign: "center",
-                    font: "small-caps 15px Georgia, Serif",
-                    editable : true,
-                    isMultiline : false
-                  },
-
-                    new go.Binding("text", "age")
-
-                  )
-                ),
                 $(go.Panel,
                   { // for each attribute show a Shape at a particular place in the overall circle
                     itemTemplate:
@@ -1102,10 +1104,24 @@ function save(){
                     margin: 1
                   },
                   new go.Binding("itemArray", "a")
-                )
-              ),$(go.TextBlock,{
-                width: 80
+                ),
+            $(go.Panel,go.Panel.Vertical,
+
+              $(go.TextBlock,
+              {
+                margin : new go.Margin(30,0,0,30),
+                textAlign: "center",
+                font: "small-caps 15px Georgia, Serif",
+                editable : true,
+                background: "white",
+                isMultiline : false
               },
+
+                new go.Binding("text", "age")
+
+              )
+            )
+              ),$(go.TextBlock,
               {
                 textAlign: "center",
                 editable : true,
@@ -1141,20 +1157,6 @@ function save(){
               { width: 80, height: 80, strokeWidth: 2, fill: "white", portId: "" }),
             $(go.Shape, "Circle",
               { width: 70, height: 70, margin: 5, strokeWidth: 2, fill: "white", portId: "" }),
-             $(go.Panel,go.Panel.Vertical,
-              {margin: new go.Margin(6,0,0,0)},
-              $(go.TextBlock,
-              {
-                margin : new go.Margin(35,35,35,35),
-                textAlign: "center",
-                editable : true,
-                isMultiline : false,
-                font: "small-caps 15px Georgia, Serif",
-                alignment: go.Spot.Center},
-                new go.Binding("text", "age")
-
-              )
-            ),
             $(go.Panel,
               { // for each attribute show a Shape at a particular place in the overall circle
                 itemTemplate:
@@ -1168,10 +1170,23 @@ function save(){
                 margin: 1
               },
               new go.Binding("itemArray", "a")
+            ),
+           $(go.Panel,go.Panel.Vertical,
+            {margin: new go.Margin(6,0,0,0)},
+            $(go.TextBlock,
+            {
+              margin : new go.Margin(30,0,0,30),
+              textAlign: "center",
+              editable : true,
+              isMultiline : false,
+              background: "white",
+              font: "small-caps 15px Georgia, Serif",
+              alignment: go.Spot.Center},
+              new go.Binding("text", "age")
+
             )
-          ),$(go.TextBlock,{
-            width: 80
-          },
+          )
+          ),$(go.TextBlock,
           {
             textAlign: "center",
             editable : true,
@@ -1195,7 +1210,7 @@ function save(){
             fromSpot: go.Spot.Bottom, toSpot: go.Spot.Top
           },
           $(go.Shape, { strokeWidth: 2 })
-        );
+        );""
         myDiagram.linkTemplateMap.add("Divorce",
         $(go.Link,
           {
@@ -1209,6 +1224,33 @@ function save(){
           })
         )
       );
+      myDiagram.linkTemplateMap.add("SMarriage",
+      $(go.Link,
+        {
+          routing: go.Link.Orthogonal,curviness: 0,
+          layerName: "Background", selectable: false,
+          fromSpot: go.Spot.Bottom, toSpot: go.Spot.Bottom
+        },
+        $(go.Shape, { strokeWidth: 2, stroke: "blue"}),
+        $(go.TextBlock,{
+          text: "/",font: "bold 30pt serif"
+        })
+      )
+    );
+      myDiagram.linkTemplateMap.add("Twin",
+      $(go.Link,
+        {
+          curviness: 0,
+          layerName: "Background", selectable: false,
+          fromSpot: go.Spot.Center, toSpot: go.Spot.Center
+        },
+        $(go.Shape, { strokeWidth: 2, stroke: "blue"}),
+        $(go.TextBlock,{
+          width: 60,
+          text: "TWINS"
+        })
+      )
+    );
         myDiagram.linkTemplateMap.add("CRealationship",
         $(go.Link,
           {
@@ -1283,6 +1325,7 @@ function save(){
           });
       setupMarriages(diagram);
       setupParents(diagram);
+      setupTwins(diagram);
     }
     function findMarriage(diagram, a, b) {  // A and B are node keys
       var nodeA = diagram.findNodeForKey(a);
@@ -1292,10 +1335,47 @@ function save(){
         while (it.next()) {
           var link = it.value;
           // Link.data.category === "Marriage" means it's a marriage relationship
-          if (link.data !== null && (link.data.category === "CSeperated" || link.data.category === "CRealationship" || link.data.category === "Divorce" || link.data.category === "Marriage" || link.data.category === "Inrelationship" || link.data.category === "Sinrelationship")) return link;
+          if (link.data !== null && (link.data.category === "SMarriage" || link.data.category === "CSeperated" || link.data.category === "CRealationship" || link.data.category === "Divorce" || link.data.category === "Marriage" || link.data.category === "Inrelationship" || link.data.category === "Sinrelationship")) return link;
         }
       }
       return null;
+    }
+    function findTwins(diagram, a, b) {  // A and B are node keys
+      var nodeA = diagram.findNodeForKey(a);
+      var nodeB = diagram.findNodeForKey(b);
+      if (nodeA !== null && nodeB !== null) {
+        var it = nodeA.findLinksBetween(nodeB);  // in either direction
+        while (it.next()) {
+          console.debug("while");
+          var link = it.value;
+          // Link.data.category === "Marriage" means it's a marriage relationship
+          if (link.data.category === "Twin") return link;
+        }
+      }
+      console.debug("Creating Link");
+      return null;
+    }
+    function setupTwins(diagram){
+      var model = diagram.model;
+      var nodeDataArray = model.nodeDataArray;
+      for(var i = 0; i < nodeDataArray.length; i++){
+        var data = nodeDataArray[i];
+        var key = data.key;
+        var twins = data.twins;
+        console.debug(twins);
+        if (twins !== undefined){
+          for(var j = 0;j < twins.length; j++){
+            var twin = twins[j];
+            var link = findTwins(diagram, key, twin);
+            if(link === null){
+              var mlab = {s: "LinkLabel"}
+              model.addNodeData(mlab);
+              var mdata = { from: key, to: twin,labelKeys: [mlab.key], category: "Twin" };
+              model.addLinkData(mdata);
+            }
+          }
+        }
+      }
     }
     // now process the node data to determine marriages
     function setupMarriages(diagram) {
@@ -1317,24 +1397,32 @@ function save(){
             if (link === null) {
                 // handeling divorces
                 var sts = data.st;
+                console.debug(sts);
                 if(sts !== undefined && (sts[j] === "D" || sts[j] === "S")){
                   // add a label node for the marriage link
                   var mlab = { s: "LinkLabel" };
+                  console.debug(mlab.key);
                   model.addNodeData(mlab);
                   // add the marriage link itself, also referring to the label node
                   var rs = data.rs;
                   var mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "Divorce" };
-                  if(rs !== undefined && rs[j] === "R"){
-                    mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "Sinrelationship" }
-                  }
-                  if(rs !== undefined && rs[j] === "C"){
-                    mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "CSeperated" }
+                  if(sts[j] === "S"){
+                    if(rs !== undefined && rs[j] === "R"){
+                      mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "Sinrelationship" }
+                    }
+                    if(rs !== undefined && rs[j] === "C"){
+                      mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "CSeperated" }
+                    }
+                    if(rs !== undefined && rs[j] === "M"){
+                      mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "SMarriage" }
+                    }
                   }
                   model.addLinkData(mdata);
                 }
                 else{
                   // add a label node for the marriage link
                   var mlab = { s: "LinkLabel" };
+                  console.debug(mlab.key);
                   model.addNodeData(mlab);
                   // add the marriage link itself, also referring to the label node
                   var rs = data.rs;
@@ -1363,18 +1451,24 @@ function save(){
             if (link === null) {
               // handeling divorces
               var sts = data.st;
+              console.debug(sts[j]);
               if(sts !== undefined && (sts[j] === "D" || sts[j]==="S")){
                 // add a label node for the marriage link
                 var mlab = { s: "LinkLabel" };
                 model.addNodeData(mlab);
                 // add the marriage link itself, also referring to the label node
                 var rs = data.rs;
-                var mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "Divorce" };
-                if(rs !== undefined && rs[j] === "R"){
-                  mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "Divorce" }
-                }
-                if(rs !== undefined && rs[j] === "C"){
-                  mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "CSeperated" }
+                var mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "Divorce" };
+                if(sts[j] === "S"){
+                  if(rs !== undefined && rs[j] === "M"){
+                    mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "SMarriage" }
+                  }
+                  if(rs !== undefined && rs[j] === "R"){
+                    mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "Divorce" }
+                  }
+                  if(rs !== undefined && rs[j] === "C"){
+                    mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "CSeperated" }
+                  }
                 }
                 model.addLinkData(mdata);
               }
@@ -1389,7 +1483,7 @@ function save(){
                   mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "Inrelationship" }
                 }
                 if(rs !== undefined && rs[j] === "C"){
-                  mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "CRealationship" }
+                  mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "CRealationship" }
                 }
                 model.addLinkData(mdata);
               }
