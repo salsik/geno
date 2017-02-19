@@ -101,7 +101,7 @@ function edit_node(){
   console.debug("Edit_node Function");
   var node = [];
   node["key"] = edit_id;
-  node["noc"] ="1";
+  node["noc"] ="2";
   node["n"] = document.getElementById("name_id").value;
   if(document.getElementById("male_id").checked){
     node["s"] = "M";
@@ -185,7 +185,7 @@ function add_node(){
   document.getElementById("myTable").style.visibility = "visible";
   var node = [];
   node["key"] = num;
-  node["noc"] ="1";
+  node["noc"] ="2";
   node["n"] = document.getElementById("name_id").value;
   if(document.getElementById("male_id").checked){
     node["s"] = "M";
@@ -205,10 +205,10 @@ function add_node(){
     node["note"] = document.getElementById("note_id").value;
   }
   if(document.getElementById("str_date").value.length !== 0){
-    node["str_date"] = document.getElementById("str_date").value;
+    node["str_date"] = document.getElementById("str_date").value.split(",");
   }
   if(document.getElementById("end_date").value.length !== 0){
-    node["end_date"] = document.getElementById("end_date").value;
+    node["end_date"] = document.getElementById("end_date").value.split(",");
   }
   if(document.getElementById("gay_id").checked){
     node["s"] = "G"+node["s"];
@@ -257,17 +257,9 @@ function add_node(){
   if(document.getElementById("age_id").value.length !== 0){
     node["age"] = document.getElementById("age_id").value;
   }
-  // else{
-  //   alert("you must insert age!");
-  //   return;
-  // }
   if(document.getElementById("bdate_id").value.length !== 0){
     node["bdate"] = document.getElementById("bdate_id").value;
   }
-  // else{
-  //   alert("you must insert birthday date!");
-  //   return;
-  // }
   if(document.getElementById("ddate_id").value.length !== 0){
     node["bdate"] = node["bdate"]+"-"+document.getElementById("ddate_id").value;
   }
@@ -393,7 +385,7 @@ function load(){
             node["note"] = msg[i][13];
             node["str_date"] = msg[i][14];
             node["end_date"] = msg[i][15];
-            node["noc"] = "1";
+            node["noc"] = "2";
             nodes.push(node);
           }
       },
@@ -437,7 +429,7 @@ function search()
               node["note"] = msg[i][13];
               node["str_date"] = msg[i][14];
               node["end_date"] = msg[i][15];
-              node["noc"] = "1";
+              node["noc"] = "2";
               nodes.push(node);
             }
             init();
@@ -888,8 +880,10 @@ function save(){
             { // show the Adornment when a mouseHover event occurs
             mouseHover: function(e, obj) {
               var node = obj.part;
-              nodeHoverAdornment.adornedObject = node;
-              node.addAdornment("mouseHover", nodeHoverAdornment);
+              if(node.note !== undefined){
+                nodeHoverAdornment.adornedObject = node;
+                node.addAdornment("mouseHover", nodeHoverAdornment);
+              }
             }
           }
           ));
@@ -960,8 +954,10 @@ function save(){
           { // show the Adornment when a mouseHover event occurs
           mouseHover: function(e, obj) {
             var node = obj.part;
-            nodeHoverAdornment.adornedObject = node;
-            node.addAdornment("mouseHover", nodeHoverAdornment);
+            if(node.note !== undefined){
+              nodeHoverAdornment.adornedObject = node;
+              node.addAdornment("mouseHover", nodeHoverAdornment);
+            }
           }
         }
         ));
@@ -1034,8 +1030,10 @@ function save(){
             { // show the Adornment when a mouseHover event occurs
             mouseHover: function(e, obj) {
               var node = obj.part;
-              nodeHoverAdornment.adornedObject = node;
-              node.addAdornment("mouseHover", nodeHoverAdornment);
+              if(node.note !== undefined){
+                nodeHoverAdornment.adornedObject = node;
+                node.addAdornment("mouseHover", nodeHoverAdornment);
+              }
             }
           }
           ));
@@ -1106,8 +1104,10 @@ function save(){
           { // show the Adornment when a mouseHover event occurs
           mouseHover: function(e, obj) {
             var node = obj.part;
-            nodeHoverAdornment.adornedObject = node;
-            node.addAdornment("mouseHover", nodeHoverAdornment);
+            if(node.note !== undefined){
+              nodeHoverAdornment.adornedObject = node;
+              node.addAdornment("mouseHover", nodeHoverAdornment);
+            }
           }
         }
         ));
@@ -1180,8 +1180,10 @@ function save(){
             { // show the Adornment when a mouseHover event occurs
             mouseHover: function(e, obj) {
               var node = obj.part;
-              nodeHoverAdornment.adornedObject = node;
-              node.addAdornment("mouseHover", nodeHoverAdornment);
+              if(node.note !== undefined){
+                nodeHoverAdornment.adornedObject = node;
+                node.addAdornment("mouseHover", nodeHoverAdornment);
+              }
             }
           }
           ));
@@ -1257,8 +1259,10 @@ function save(){
               { // show the Adornment when a mouseHover event occurs
               mouseHover: function(e, obj) {
                 var node = obj.part;
-                nodeHoverAdornment.adornedObject = node;
-                node.addAdornment("mouseHover", nodeHoverAdornment);
+                if(node.note !== undefined){
+                  nodeHoverAdornment.adornedObject = node;
+                  node.addAdornment("mouseHover", nodeHoverAdornment);
+                }
               }
             }
             ));
@@ -1330,8 +1334,10 @@ function save(){
           { // show the Adornment when a mouseHover event occurs
           mouseHover: function(e, obj) {
             var node = obj.part;
-            nodeHoverAdornment.adornedObject = node;
-            node.addAdornment("mouseHover", nodeHoverAdornment);
+            if(node.note !== undefined){
+              nodeHoverAdornment.adornedObject = node;
+              node.addAdornment("mouseHover", nodeHoverAdornment);
+            }
           }
         }
         ));
