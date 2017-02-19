@@ -6,6 +6,9 @@ function clear_fields(){
   document.getElementById("male_id").checked = true;
   document.getElementById("alive_id").checked = true;
   document.getElementById("mainc_no").checked = true;
+  document.getElementById("note_id").value = "";
+  document.getElementById("str_date").value="";
+  document.getElementById("end_date").value="";
   document.getElementById("mother_id").value="";
   document.getElementById("father_id").value = "";
   document.getElementById("partners_id").value = "";
@@ -28,11 +31,20 @@ function preview_node(id){
   if(node["s"]==="F" || node["s"]==="SF"){
     document.getElementById("female_id").checked = true;
   }
+  if(node["note"] !== undefined){
+    document.getElementById("note_id").value = node["note"];
+  }
   if(node["a"] !== undefined && node["a"] === "S"){
     document.getElementById("dead_id").checked = true;
   }
   else{
     document.getElementById("alive_id").checked = true;
+  }
+  if(node["str_date"] !== undefined){
+    document.getElementById("str_date").value = node["str_date"];
+  }
+  if(node["end_date"] !== undefined){
+    document.getElementById("end_date").value = node["end_date"];
   }
   if(node["s"] === "SM" || node["s"] === "SF"){
     main_c_exist = false;
@@ -105,6 +117,9 @@ function edit_node(){
     main_c_exist = true;
     node["s"] = "S"+node["s"];
   }
+  if(document.getElementById("note_id").value.length !== 0){
+    node["note"] = document.getElementById("note_id").value;
+  }
   if(document.getElementById("gay_id").checked){
     node["s"] = "G"+node["s"];
   }
@@ -113,6 +128,12 @@ function edit_node(){
   }
   if(document.getElementById("dead_id").checked){
     node["a"] = "S";
+  }
+  if(document.getElementById("str_date").value.length !== 0){
+    node["str_date"] = document.getElementById("str_date").value;
+  }
+  if(document.getElementById("end_date").value.length !== 0){
+    node["end_date"] = document.getElementById("end_date").value;
   }
   if(document.getElementById("twins_id").value.length !== 0){
     node["twins"] = document.getElementById("twins_id").value.split(",");
@@ -178,6 +199,15 @@ function add_node(){
     }
     main_c_exist = true;
     node["s"] = "S"+node["s"];
+  }
+  if(document.getElementById("note_id").value.length !== 0){
+    node["note"] = document.getElementById("note_id").value;
+  }
+  if(document.getElementById("str_date").value.length !== 0){
+    node["str_date"] = document.getElementById("str_date").value;
+  }
+  if(document.getElementById("end_date").value.length !== 0){
+    node["end_date"] = document.getElementById("end_date").value;
   }
   if(document.getElementById("gay_id").checked){
     node["s"] = "G"+node["s"];
@@ -577,18 +607,19 @@ function save(){
     ]*/;
                                                           //CREATING GENOGRAM
     var myDiagram;
+
     function init() {
+      var $ = go.GraphObject.make;
       nodes1 = nodes.slice(0);
-      console.debug(nodes);
-      console.debug(nodes1);
       if(myDiagram !== undefined) myDiagram.div = null;
       if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
-      var $ = go.GraphObject.make;
+
       myDiagram =
         $(go.Diagram, "myDiagramDiv",
           {
             initialAutoScale: go.Diagram.Uniform,
             initialContentAlignment: go.Spot.Center,
+            hoverDelay: 50,
             "undoManager.isEnabled": true,
             allowSelect: true,
             // when a node is selected, draw a big yellow circle behind it
@@ -601,6 +632,33 @@ function save(){
             layout:  // use a custom layout, defined below
               $(GenogramLayout, { direction: 90, layerSpacing: 50, columnSpacing: 10 })
           });
+          //                                        NOte mouse hover
+          var nodeHoverAdornment =
+            $(go.Adornment, "Spot",
+              {
+                background: "transparent",
+                // hide the Adornment when the mouse leaves it
+                mouseLeave: function(e, obj) {
+                  var ad = obj.part;
+                  ad.adornedPart.removeAdornment("mouseHover");
+                }
+              },
+              $(go.Placeholder,
+                {
+                  background: "transparent",  // to allow this Placeholder to be "seen" by mouse events
+                  isActionable: true,  //dneeded because this is in a temporary Layer
+                  click: function(e, obj) {
+                    var node = obj.part.adornedPart;
+                    node.diagram.select(node);
+                  }
+                }),
+              $(go.Panel,"Auto",{ alignment: go.Spot.Top, alignmentFocus: go.Spot.Top, maxSize: new go.Size(200, NaN) },
+              $(go.Shape, "RoundedRectangle",{fill: "yellow"}),
+              $(go.TextBlock,
+                { alignment: go.Spot.Top, alignmentFocus: go.Spot.Top },
+                new go.Binding("text", "note"))
+            ));
+
       // determine the color for each attribute shape
       function attrFill(a) {
         switch (a) {
@@ -736,7 +794,15 @@ function save(){
              maxSize: new go.Size(NaN, NaN) },
             new go.Binding("text", "n")
             )
-          ),new go.Binding("noc","noc")
+          ),new go.Binding("noc","noc"),
+          new go.Binding("note", "note"),
+          { // show the Adornment when a mouseHover event occurs
+          mouseHover: function(e, obj) {
+            var node = obj.part;
+            nodeHoverAdornment.adornedObject = node;
+            node.addAdornment("mouseHover", nodeHoverAdornment);
+          }
+        }
         ));
         myDiagram.nodeTemplateMap.add("GM",  // gay male
           $(go.Node, "Vertical",
@@ -1216,9 +1282,14 @@ function save(){
             fromSpot: go.Spot.Bottom, toSpot: go.Spot.Bottom
           },
           $(go.Shape, { strokeWidth: 2, stroke: "blue"}),
-          $(go.TextBlock,{
-            text: "//",font: "bold 30pt serif"
-          })
+          $(go.Panel,"Vertical",{height: 60},
+            $(go.TextBlock,
+              new go.Binding("text","date")
+            ),
+            $(go.TextBlock,{
+              text: "//",font: "bold 20pt serif"
+            })
+          )
         )
       );
       myDiagram.linkTemplateMap.add("SMarriage",
@@ -1401,16 +1472,48 @@ function save(){
                   model.addNodeData(mlab);
                   // add the marriage link itself, also referring to the label node
                   var rs = data.rs;
-                  var mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "Divorce" };
+                  var s ="";
+                  if(data.str_date !== undefined){
+                    s += "m:"+data.str_date+" ";
+                  }
+                  if(data.end_date !== undefined){
+                    s +="d:"+data.end_date;
+                    data.noc = 3;
+                  }
+                  var mdata = { from: key, date: s, to: wife, labelKeys: [mlab.key], category: "Divorce" };
                   if(sts[j] === "S"){
                     if(rs !== undefined && rs[j] === "R"){
-                      mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "Sinrelationship" }
+                      s = "";
+                      if(data.str_date !== undefined){
+                        s += "lt:"+data.str_date+" ";
+                      }
+                      if(data.end_date !== undefined){
+                        s +="s:"+data.end_date;
+                        data.noc = 3;
+                      }
+                      mdata = { from: key, to: wife, date: s, labelKeys: [mlab.key], category: "Sinrelationship" }
                     }
                     if(rs !== undefined && rs[j] === "C"){
-                      mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "CSeperated" }
+                      s = "";
+                      if(data.str_date !== undefined){
+                        s += "lt:"+data.str_date;
+                      }
+                      if(data.end_date !== undefined){
+                        s +="s:"+data.end_date;
+                        data.noc = 3;
+                      }
+                      mdata = { from: key, to: wife,date: s, labelKeys: [mlab.key], category: "CSeperated" }
                     }
                     if(rs !== undefined && rs[j] === "M"){
-                      mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "SMarriage" }
+                      s = "";
+                      if(data.str_date !== undefined){
+                        s += "m:"+data.str_date+" ";
+                      }
+                      if(data.end_date !== undefined){
+                        s +="s:"+data.end_date;
+                        data.noc = 3;
+                      }
+                      mdata = { from: key, to: wife, date: s, labelKeys: [mlab.key], category: "SMarriage" }
                     }
                   }
                   model.addLinkData(mdata);
@@ -1422,12 +1525,22 @@ function save(){
                   model.addNodeData(mlab);
                   // add the marriage link itself, also referring to the label node
                   var rs = data.rs;
-                  var mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "Marriage" };
+                  s = "";
+                  if(data.str_date !== undefined){
+                    s += "m:"+data.str_date+" ";
+                  }
+                  var mdata = { from: key, to: wife, date: s, labelKeys: [mlab.key], category: "Marriage" };
                   if(rs !== undefined && rs[j] === "R"){
-                    mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "Inrelationship" }
+                    if(data.str_date !== undefined){
+                      s = "lt:"+data.str_date+" ";
+                    }
+                    mdata = { from: key, to: wife,date: s, labelKeys: [mlab.key], category: "Inrelationship" }
                   }
                   if(rs !== undefined && rs[j] === "C"){
-                    mdata = { from: key, to: wife, labelKeys: [mlab.key], category: "CRealationship" }
+                    if(data.str_date !== undefined){
+                      s = "lt:"+data.str_date+" ";
+                    }
+                    mdata = { from: key, to: wife, date: s, labelKeys: [mlab.key], category: "CRealationship" }
                   }
                   model.addLinkData(mdata);
               }
@@ -1454,16 +1567,48 @@ function save(){
                 model.addNodeData(mlab);
                 // add the marriage link itself, also referring to the label node
                 var rs = data.rs;
-                var mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "Divorce" };
+                var s ="";
+                if(data.str_date !== undefined){
+                  s += "m:"+data.str_date+" ";
+                }
+                if(data.end_date !== undefined){
+                  s +="d:"+data.end_date;
+                  data.noc = 3;
+                }
+                var mdata = { from: key, to: husband, date: s, labelKeys: [mlab.key], category: "Divorce" };
                 if(sts[j] === "S"){
                   if(rs !== undefined && rs[j] === "M"){
+                    s = "";
+                    if(data.str_date !== undefined){
+                      s += "m:"+data.str_date+" ";
+                    }
+                    if(data.end_date !== undefined){
+                      s +="s:"+data.end_date;
+                      data.noc = 3;
+                    }
                     mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "SMarriage" }
                   }
                   if(rs !== undefined && rs[j] === "R"){
-                    mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "Divorce" }
+                    s = "";
+                    if(data.str_date !== undefined){
+                      s += "lt:"+data.str_date+" ";
+                    }
+                    if(data.end_date !== undefined){
+                      s +="s:"+data.end_date;
+                      data.noc = 3;
+                    }
+                    mdata = { from: key, to: husband, date: s, labelKeys: [mlab.key], category: "Divorce" }
                   }
                   if(rs !== undefined && rs[j] === "C"){
-                    mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "CSeperated" }
+                    s = "";
+                    if(data.str_date !== undefined){
+                      s += "lt:"+data.str_date+" ";
+                    }
+                    if(data.end_date !== undefined){
+                      s +="s:"+data.end_date;
+                      data.noc = 3;
+                    }
+                    mdata = { from: key, to: husband, date: s, labelKeys: [mlab.key], category: "CSeperated" }
                   }
                 }
                 model.addLinkData(mdata);
@@ -1474,12 +1619,22 @@ function save(){
                 model.addNodeData(mlab);
                 // add the marriage link itself, also referring to the label node
                 var rs = data.rs;
-                var mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "Marriage" };
+                s = "";
+                if(data.str_date !== undefined){
+                  s += "m:"+data.str_date+" ";
+                }
+                var mdata = { from: key, to: husband, date: s, labelKeys: [mlab.key], category: "Marriage" };
                 if(rs !== undefined && rs[j] === "R"){
-                  mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "Inrelationship" }
+                  if(data.str_date !== undefined){
+                    s = "lt:"+data.str_date+" ";
+                  }
+                  mdata = { from: key, to: husband, date: s, labelKeys: [mlab.key], category: "Inrelationship" }
                 }
                 if(rs !== undefined && rs[j] === "C"){
-                  mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "CRealationship" }
+                  if(data.str_date !== undefined){
+                    s += "lt:"+data.str_date+" ";
+                  }
+                  mdata = { from: key, to: husband, date: s, labelKeys: [mlab.key], category: "CRealationship" }
                 }
                 model.addLinkData(mdata);
               }
