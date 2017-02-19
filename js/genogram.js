@@ -814,8 +814,10 @@ function save(){
           { // show the Adornment when a mouseHover event occurs
           mouseHover: function(e, obj) {
             var node = obj.part;
-            nodeHoverAdornment.adornedObject = node;
-            node.addAdornment("mouseHover", nodeHoverAdornment);
+            if(node.note !== undefined){
+              nodeHoverAdornment.adornedObject = node;
+              node.addAdornment("mouseHover", nodeHoverAdornment);
+            }
           }
         }
         ));
