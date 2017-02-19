@@ -182,6 +182,7 @@ function edit_node(){
 }
 main_c_exist = false;
 function add_node(){
+  document.getElementById("myTable").style.visibility = "visible";
   var node = [];
   node["key"] = num;
   node["noc"] ="1";
@@ -238,6 +239,8 @@ function add_node(){
     var part = document.getElementById("partners_id").value.split(",");
     var sts = document.getElementById("status_id").value.split(",");
     var csts = document.getElementById("cstatus_id").value.split(",");
+    var str_dates = document.getElementById("str_date").value.split(",");
+    var end_dates = document.getElementById("end_date").value.split(",");
     if(part.length > sts.length){
       alert("Please Enter Status for each partner!");
       clear_fields();
@@ -386,6 +389,10 @@ function load(){
               node["age"] = msg[i][10];
             if(msg[i][11]!="-1")
               node["bdate"] = msg[i][11];
+            node["twins"] = msg[i][12];
+            node["note"] = msg[i][13];
+            node["str_date"] = msg[i][14];
+            node["end_date"] = msg[i][15];
             node["noc"] = "1";
             nodes.push(node);
           }
@@ -396,6 +403,7 @@ function load(){
 }
 function search()
 {
+  document.getElementById("sample").style.visibility = "visible";
   nodes = [];
   $.post('ajaxarr.php', { patient: document.getElementById("patientname").value},
     function(msg){
@@ -426,6 +434,9 @@ function search()
               if(msg[i][11] !== "-1")
                 node["bdate"] = msg[i][11];
               node["twins"] = msg[i][12];
+              node["note"] = msg[i][13];
+              node["str_date"] = msg[i][14];
+              node["end_date"] = msg[i][15];
               node["noc"] = "1";
               nodes.push(node);
             }
@@ -489,9 +500,12 @@ function save(){
           'status' : status,
           'partners_status' : nodes[i].rs,
           'current_status' : nodes[i].st,
+          'str_date' : nodes[i].str_date,
+          'end_date' : nodes[i].end_date,
           'age' : nodes[i].age,
           'date' : nodes[i].bdate,
-          'geno_id' : geno_id
+          'geno_id' : geno_id,
+          'note' : nodes[i].note
 
       },success: function(res){
         console.debug(res);
@@ -609,6 +623,7 @@ function save(){
     var myDiagram;
 
     function init() {
+      document.getElementById("sample").style.visibility = "visible";
       var $ = go.GraphObject.make;
       nodes1 = nodes.slice(0);
       if(myDiagram !== undefined) myDiagram.div = null;
@@ -866,7 +881,15 @@ function save(){
                maxSize: new go.Size(NaN, NaN) },
               new go.Binding("text", "n")
               )
-            ),new go.Binding("noc","noc")
+            ),new go.Binding("noc","noc"),
+            new go.Binding("note", "note"),
+            { // show the Adornment when a mouseHover event occurs
+            mouseHover: function(e, obj) {
+              var node = obj.part;
+              nodeHoverAdornment.adornedObject = node;
+              node.addAdornment("mouseHover", nodeHoverAdornment);
+            }
+          }
           ));
       myDiagram.nodeTemplateMap.add("SM",  // main male
         $(go.Node, "Vertical",
@@ -930,7 +953,15 @@ function save(){
              maxSize: new go.Size(NaN, NaN) },
             new go.Binding("text", "n")
             )
-          ),new go.Binding("noc","noc")
+          ),new go.Binding("noc","noc"),
+          new go.Binding("note", "note"),
+          { // show the Adornment when a mouseHover event occurs
+          mouseHover: function(e, obj) {
+            var node = obj.part;
+            nodeHoverAdornment.adornedObject = node;
+            node.addAdornment("mouseHover", nodeHoverAdornment);
+          }
+        }
         ));
         myDiagram.nodeTemplateMap.add("GSM",  // gay main male
           $(go.Node, "Vertical",
@@ -996,7 +1027,15 @@ function save(){
                maxSize: new go.Size(NaN, NaN) },
               new go.Binding("text", "n")
               )
-            ),new go.Binding("noc","noc")
+            ),new go.Binding("noc","noc"),
+            new go.Binding("note", "note"),
+            { // show the Adornment when a mouseHover event occurs
+            mouseHover: function(e, obj) {
+              var node = obj.part;
+              nodeHoverAdornment.adornedObject = node;
+              node.addAdornment("mouseHover", nodeHoverAdornment);
+            }
+          }
           ));
       myDiagram.nodeTemplateMap.add("F",  // female
         $(go.Node, "Vertical",
@@ -1060,7 +1099,15 @@ function save(){
            maxSize: new go.Size(NaN, NaN) },
           new go.Binding("text", "n")
           )
-          ),new go.Binding("noc","noc")
+          ),new go.Binding("noc","noc"),
+          new go.Binding("note", "note"),
+          { // show the Adornment when a mouseHover event occurs
+          mouseHover: function(e, obj) {
+            var node = obj.part;
+            nodeHoverAdornment.adornedObject = node;
+            node.addAdornment("mouseHover", nodeHoverAdornment);
+          }
+        }
         ));
         myDiagram.nodeTemplateMap.add("GF",  // lesbien female
           $(go.Node, "Vertical",
@@ -1126,7 +1173,15 @@ function save(){
              maxSize: new go.Size(NaN, NaN) },
             new go.Binding("text", "n")
             )
-            ),new go.Binding("noc","noc")
+            ),new go.Binding("noc","noc"),
+            new go.Binding("note", "note"),
+            { // show the Adornment when a mouseHover event occurs
+            mouseHover: function(e, obj) {
+              var node = obj.part;
+              nodeHoverAdornment.adornedObject = node;
+              node.addAdornment("mouseHover", nodeHoverAdornment);
+            }
+          }
           ));
           myDiagram.nodeTemplateMap.add("GSF",  // lesbien female
             $(go.Node, "Vertical",
@@ -1195,7 +1250,15 @@ function save(){
                maxSize: new go.Size(NaN, NaN) },
               new go.Binding("text", "n")
               )
-              ),new go.Binding("noc","noc")
+              ),new go.Binding("noc","noc"),
+              new go.Binding("note", "note"),
+              { // show the Adornment when a mouseHover event occurs
+              mouseHover: function(e, obj) {
+                var node = obj.part;
+                nodeHoverAdornment.adornedObject = node;
+                node.addAdornment("mouseHover", nodeHoverAdornment);
+              }
+            }
             ));
       myDiagram.nodeTemplateMap.add("SF",  // main female
         $(go.Node, "Vertical",
@@ -1260,7 +1323,15 @@ function save(){
            maxSize: new go.Size(NaN, NaN) },
           new go.Binding("text", "n")
           )
-          ),new go.Binding("noc","noc")
+          ),new go.Binding("noc","noc"),
+          new go.Binding("note", "note"),
+          { // show the Adornment when a mouseHover event occurs
+          mouseHover: function(e, obj) {
+            var node = obj.part;
+            nodeHoverAdornment.adornedObject = node;
+            node.addAdornment("mouseHover", nodeHoverAdornment);
+          }
+        }
         ));
       // the representation of each label node -- nothing shows on a Marriage Link
       myDiagram.nodeTemplateMap.add("LinkLabel",
@@ -1473,44 +1544,44 @@ function save(){
                   // add the marriage link itself, also referring to the label node
                   var rs = data.rs;
                   var s ="";
-                  if(data.str_date !== undefined){
-                    s += "m:"+data.str_date+" ";
+                  if(data.str_date !== undefined && data.str_date[j] !== "0"){
+                    s += "m:"+data.str_date[j]+" ";
                   }
-                  if(data.end_date !== undefined){
-                    s +="d:"+data.end_date;
+                  if(data.end_date !== undefined && data.end_date[j] !== "0"){
+                    s +="d:"+data.end_date[j];
                     data.noc = 3;
                   }
                   var mdata = { from: key, date: s, to: wife, labelKeys: [mlab.key], category: "Divorce" };
                   if(sts[j] === "S"){
                     if(rs !== undefined && rs[j] === "R"){
                       s = "";
-                      if(data.str_date !== undefined){
-                        s += "lt:"+data.str_date+" ";
+                      if(data.str_date !== undefined && data.str_date[j] !== "0"){
+                        s += "lt:"+data.str_date[j]+" ";
                       }
-                      if(data.end_date !== undefined){
-                        s +="s:"+data.end_date;
+                      if(data.end_date !== undefined && data.end_date[j] !== "0"){
+                        s +="s:"+data.end_date[j];
                         data.noc = 3;
                       }
                       mdata = { from: key, to: wife, date: s, labelKeys: [mlab.key], category: "Sinrelationship" }
                     }
                     if(rs !== undefined && rs[j] === "C"){
                       s = "";
-                      if(data.str_date !== undefined){
-                        s += "lt:"+data.str_date;
+                      if(data.str_date !== undefined && data.str_date[j] !== "0"){
+                        s += "lt:"+data.str_date[j]+" ";
                       }
-                      if(data.end_date !== undefined){
-                        s +="s:"+data.end_date;
+                      if(data.end_date !== undefined && data.end_date[j] !== "0"){
+                        s +="s:"+data.end_date[j];
                         data.noc = 3;
                       }
                       mdata = { from: key, to: wife,date: s, labelKeys: [mlab.key], category: "CSeperated" }
                     }
                     if(rs !== undefined && rs[j] === "M"){
                       s = "";
-                      if(data.str_date !== undefined){
-                        s += "m:"+data.str_date+" ";
+                      if(data.str_date !== undefined && data.str_date[j] !== "0"){
+                        s += "m:"+data.str_date[j]+" ";
                       }
-                      if(data.end_date !== undefined){
-                        s +="s:"+data.end_date;
+                      if(data.end_date !== undefined && data.end_date[j] !== "0"){
+                        s +="s:"+data.end_date[j];
                         data.noc = 3;
                       }
                       mdata = { from: key, to: wife, date: s, labelKeys: [mlab.key], category: "SMarriage" }
@@ -1526,19 +1597,19 @@ function save(){
                   // add the marriage link itself, also referring to the label node
                   var rs = data.rs;
                   s = "";
-                  if(data.str_date !== undefined){
-                    s += "m:"+data.str_date+" ";
+                  if(data.str_date !== undefined && data.str_date[j] !== "0"){
+                    s += "m:"+data.str_date[j]+" ";
                   }
                   var mdata = { from: key, to: wife, date: s, labelKeys: [mlab.key], category: "Marriage" };
                   if(rs !== undefined && rs[j] === "R"){
-                    if(data.str_date !== undefined){
-                      s = "lt:"+data.str_date+" ";
+                    if(data.str_date !== undefined && data.str_date[j] !== "0"){
+                      s = "lt:"+data.str_date[j]+" ";
                     }
                     mdata = { from: key, to: wife,date: s, labelKeys: [mlab.key], category: "Inrelationship" }
                   }
                   if(rs !== undefined && rs[j] === "C"){
-                    if(data.str_date !== undefined){
-                      s = "lt:"+data.str_date+" ";
+                    if(data.str_date !== undefined && data.str_date[j] !== "0"){
+                      s = "lt:"+data.str_date[j]+" ";
                     }
                     mdata = { from: key, to: wife, date: s, labelKeys: [mlab.key], category: "CRealationship" }
                   }
@@ -1568,44 +1639,44 @@ function save(){
                 // add the marriage link itself, also referring to the label node
                 var rs = data.rs;
                 var s ="";
-                if(data.str_date !== undefined){
-                  s += "m:"+data.str_date+" ";
+                if(data.str_date !== undefined && data.str_date[j] !== "0"){
+                  s += "m:"+data.str_date[j]+" ";
                 }
-                if(data.end_date !== undefined){
-                  s +="d:"+data.end_date;
+                if(data.end_date !== undefined && data.end_date[j] !== "0"){
+                  s +="d:"+data.end_date[j];
                   data.noc = 3;
                 }
                 var mdata = { from: key, to: husband, date: s, labelKeys: [mlab.key], category: "Divorce" };
                 if(sts[j] === "S"){
                   if(rs !== undefined && rs[j] === "M"){
                     s = "";
-                    if(data.str_date !== undefined){
-                      s += "m:"+data.str_date+" ";
+                    if(data.str_date !== undefined && data.str_date[j] !== "0"){
+                      s += "m:"+data.str_date[j]+" ";
                     }
-                    if(data.end_date !== undefined){
-                      s +="s:"+data.end_date;
+                    if(data.end_date !== undefined && data.end_date[j] !== "0"){
+                      s +="s:"+data.end_date[j];
                       data.noc = 3;
                     }
                     mdata = { from: key, to: husband, labelKeys: [mlab.key], category: "SMarriage" }
                   }
                   if(rs !== undefined && rs[j] === "R"){
                     s = "";
-                    if(data.str_date !== undefined){
-                      s += "lt:"+data.str_date+" ";
+                    if(data.str_date !== undefined && data.str_date[j] !== "0"){
+                      s += "lt:"+data.str_date[j]+" ";
                     }
-                    if(data.end_date !== undefined){
-                      s +="s:"+data.end_date;
+                    if(data.end_date !== undefined && data.end_date[j] !== "0"){
+                      s +="s:"+data.end_date[j];
                       data.noc = 3;
                     }
                     mdata = { from: key, to: husband, date: s, labelKeys: [mlab.key], category: "Divorce" }
                   }
                   if(rs !== undefined && rs[j] === "C"){
                     s = "";
-                    if(data.str_date !== undefined){
-                      s += "lt:"+data.str_date+" ";
+                    if(data.str_date !== undefined && data.str_date[j] !== "0"){
+                      s += "lt:"+data.str_date[j]+" ";
                     }
-                    if(data.end_date !== undefined){
-                      s +="s:"+data.end_date;
+                    if(data.end_date !== undefined && data.end_date[j] !== "0"){
+                      s +="s:"+data.end_date[j];
                       data.noc = 3;
                     }
                     mdata = { from: key, to: husband, date: s, labelKeys: [mlab.key], category: "CSeperated" }
@@ -1620,19 +1691,19 @@ function save(){
                 // add the marriage link itself, also referring to the label node
                 var rs = data.rs;
                 s = "";
-                if(data.str_date !== undefined){
-                  s += "m:"+data.str_date+" ";
+                if(data.str_date !== undefined && data.str_date[j] !== "0"){
+                  s += "m:"+data.str_date[j]+" ";
                 }
                 var mdata = { from: key, to: husband, date: s, labelKeys: [mlab.key], category: "Marriage" };
                 if(rs !== undefined && rs[j] === "R"){
-                  if(data.str_date !== undefined){
-                    s = "lt:"+data.str_date+" ";
+                  if(data.str_date !== undefined && data.str_date[j] !== "0"){
+                    s = "lt:"+data.str_date[j]+" ";
                   }
                   mdata = { from: key, to: husband, date: s, labelKeys: [mlab.key], category: "Inrelationship" }
                 }
                 if(rs !== undefined && rs[j] === "C"){
-                  if(data.str_date !== undefined){
-                    s += "lt:"+data.str_date+" ";
+                  if(data.str_date !== undefined && data.str_date[j] !== "0"){
+                    s += "lt:"+data.str_date[j]+" ";
                   }
                   mdata = { from: key, to: husband, date: s, labelKeys: [mlab.key], category: "CRealationship" }
                 }

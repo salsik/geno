@@ -48,6 +48,9 @@
     resize: none;
     width: 200px;
 }
+#sample {
+  visibility: hidden;
+}
 #enterForm hr {
   border-color: #4CAF50
 }
@@ -90,7 +93,7 @@
     padding-left: 20px;
     padding-top: 20px;
 }
-#myTable { border-collapse: collapse; border-spacing: 0; margin: 4px;}
+#myTable { visibility: hidden; border-collapse: collapse; border-spacing: 0; margin: 4px;}
 
 #myTable th{
   background: #acc8dd;

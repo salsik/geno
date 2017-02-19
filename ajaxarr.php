@@ -42,9 +42,13 @@ $result1 = mysqli_query($connect,"select * from relation where geno_id=".$row['g
 $partners_id = array();
 $partners_status = array();
 $partners_cstatus = array();
+$partners_str_dates = array();
+$partners_end_dates = array();
 while($row2=mysqli_fetch_array($result1))
 {
 	array_push($partners_id,$row2['second_id']);
+	array_push($partners_str_dates, $row2['str_date']);
+	array_push($partners_end_dates, $row2['end_date']);
 	if($row2['status'] == "marriage"){
 		array_push($partners_status,"M");
 	}
@@ -74,6 +78,9 @@ array_push($nodes[$i], $row['age']);
 array_push($nodes[$i], $row['date']);
 
 array_push($nodes[$i], $twins);
+array_push($nodes[$i], $row['note']);
+array_push($nodes[$i], $partners_str_dates);
+array_push($nodes[$i], $partners_end_dates);
 
 
  $i++;
