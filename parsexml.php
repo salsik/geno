@@ -4,8 +4,12 @@
 
 include 'dbConnect.php';
 
+if (!isset($_POST['filename']))
+	die("Error: no post parameters");
 
-   $data = simplexml_load_file('myxmlfile.xml') or die("Error: Cannot create object");
+	$filename = $_POST['filename'] ;
+	
+   $data = simplexml_load_file($filename) or die("Error: Cannot create object");
 
 
 	$geno_id= time() ;

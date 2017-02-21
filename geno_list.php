@@ -14,6 +14,10 @@ include 'dbConnect.php';
     alert("row "+id+"clicked");
   };
 
+   function exp(id){
+    alert("row "+id+"clicked");
+  };
+  
 </script>
 <body>
  <div id="wrapper">
@@ -43,6 +47,10 @@ include 'dbConnect.php';
             <td>
               <input type="button" value = "Delete Genogram"
               onclick= "del(<?php echo $row['geno_id']; ?>)" />
+            </td>
+			<td>
+              <input type="button" value = "export to xml"
+              onclick= "exp(<?php echo $row['geno_id']; ?>)" />
             </td>
           </tr>
           <?php $count++;

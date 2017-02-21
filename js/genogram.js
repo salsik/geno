@@ -453,12 +453,26 @@ function importxml()
   var xmlfile = document.getElementById('my_xml').click();
 
   document.getElementById('my_xml').onchange = function () {
-    alert('Selected file: ' + this.value);
+ 	
+	 $.ajax({url: "parsexml.php",
+        type: "post",
+        data: {
+          'filename' : this.files[0].name
+
+      },success: function(res){
+		  
+		  if(res.includes('Error'))
+			  alert('malformed file type');
+		  else
+			alert('data added successfully');
+        console.debug(res);
+      }
+    });
+	
   };
-
-
-
 }
+
+
 function save(){
   d = new Date();
   if(!main_c_exist){
