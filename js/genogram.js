@@ -1,4 +1,6 @@
 var num = 0;
+var myDiagram;
+
 function clear_fields(){
   document.getElementById("name_id").value="";
   document.getElementById("gay_id").checked = false;
@@ -435,7 +437,7 @@ function search()
             init();
 
   },"json").fail(function(){
-      if(myDiagram.div!==undefined)
+      if(myDiagram!== undefined && myDiagram.div!==undefined)
         myDiagram.div=null;
       alert("Patient not found");
   });
@@ -612,7 +614,6 @@ function save(){
       { key: 40, n: "Maternal Great Great", s: "M" ,bdate: 1960,age:50, noc:2}
     ]*/;
                                                           //CREATING GENOGRAM
-    var myDiagram;
 
     function init() {
       document.getElementById("sample").style.visibility = "visible";
